@@ -74,7 +74,6 @@ namespace Xamarin.Forms.Xaml
 			return ConvertTo(value, toType, getConverter, serviceProvider);
 		}
 
-		static INativeValueConverterService NativeValueConverterService = DependencyService.Get<INativeValueConverterService>();
 		static string GetTypeConverterTypeName(this IEnumerable<CustomAttributeData> attributes)
 		{
 			var converterAttribute =
@@ -160,8 +159,10 @@ namespace Xamarin.Forms.Xaml
 				}
 			}
 
+			var nativeValueConverterService = DependencyService.Get<INativeValueConverterService>();
+
 			object nativeValue = null;
-			if (NativeValueConverterService != null && NativeValueConverterService.ConvertTo(value, toType, out nativeValue))
+			if (nativeValueConverterService != null && nativeValueConverterService.ConvertTo(value, toType, out nativeValue))
 				return nativeValue;
 
 			return value;

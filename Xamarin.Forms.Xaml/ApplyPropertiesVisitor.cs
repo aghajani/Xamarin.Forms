@@ -372,10 +372,10 @@ namespace Xamarin.Forms.Xaml
 				return true;
 			}
 
-			if (nativeBindingService != null && nativeBindingService.TrySetBinding(element, localName, binding))
+			if (nativeBindingService != null && property != null && nativeBindingService.TrySetBinding(element, property, binding))
 				return true;
 
-			if (nativeBindingService != null && property != null && nativeBindingService.TrySetBinding(element, property, binding))
+			if (nativeBindingService != null && nativeBindingService.TrySetBinding(element, localName, binding))
 				return true;
 
 			if (property != null)
@@ -395,15 +395,14 @@ namespace Xamarin.Forms.Xaml
 			if (property == null)
 				return false;
 
+			Func<MemberInfo> minforetriever;
+			if (attached)
+				minforetriever = () => property.DeclaringType.GetRuntimeMethod("Get" + property.PropertyName, new [] { typeof(BindableObject) });
+			else
+				minforetriever = () => property.DeclaringType.GetRuntimeProperty(property.PropertyName);
+			var convertedValue = value.ConvertTo(property.ReturnType, minforetriever, serviceProvider);
+
 			if (bindable != null) {
-				Func<MemberInfo> minforetriever;
-				if (attached)
-					minforetriever = () => property.DeclaringType.GetRuntimeMethod("Get" + property.PropertyName, new [] { typeof(BindableObject) });
-				else
-					minforetriever = () => property.DeclaringType.GetRuntimeProperty(property.PropertyName);
-
-				var convertedValue = value.ConvertTo(property.ReturnType, minforetriever, serviceProvider);
-
 				//SetValue doesn't throw on mismatching type, so check before to get a chance to try the property setting or the collection adding
 				var nullable = property.ReturnTypeInfo.IsGenericType &&
 							   property.ReturnTypeInfo.GetGenericTypeDefinition() == typeof(Nullable<>);
@@ -415,7 +414,7 @@ namespace Xamarin.Forms.Xaml
 				return false;
 			}
 
-			if (nativeBindingService != null && nativeBindingService.TrySetValue(element, property, value))
+			if (nativeBindingService != null && nativeBindingService.TrySetValue(element, property, convertedValue))
 				return true;
 
 			exception = new XamlParseException($"{elementType.Name} is not a BindableObject or does not support setting native BindableProperties", lineInfo);

@@ -10,6 +10,7 @@ namespace Xamarin.Forms.Controls
 		public XamlNativeViews()
 		{
 			InitializeComponent();
+			BindingContext = new { NativeText = "Text set to Native view using native binding" };
 		}
 	}
 }

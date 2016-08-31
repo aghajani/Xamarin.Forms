@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
 			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
 			 xmlns:ios="clr-namespace:UIKit;assembly=Xamarin.iOS;targetPlatform=iOS"
@@ -6,7 +6,7 @@
 			 xmlns:formsandroid="clr-namespace:Xamarin.Forms;assembly=Xamarin.Forms.Platform.Android;targetPlatform=Android"
 			 x:Class="Xamarin.Forms.Controls.XamlNativeViews">
 	<ContentPage.Content>
-		<ios:UILabel Text="I'm Native" />
-		<androidWidget:TextView  Text="I'm Native too" x:Arguments="{x:Static formsandroid:Forms.Context}" />
+		<ios:UILabel Text="{Binding NativeText}" View.HorizontalOptions="Start"/>
+		<androidWidget:TextView Text="I'm Native too" x:Arguments="{x:Static formsandroid:Forms.Context}" />
 	</ContentPage.Content>
 </ContentPage>

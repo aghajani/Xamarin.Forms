@@ -2,7 +2,6 @@
 using AView = Android.Views.View;
 
 [assembly: Xamarin.Forms.Dependency(typeof(Xamarin.Forms.Platform.Android.NativeValueConverterService))]
-
 namespace Xamarin.Forms.Platform.Android
 {
 	class NativeValueConverterService : Xaml.INativeValueConverterService

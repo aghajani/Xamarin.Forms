@@ -1,7 +1,7 @@
 ﻿using System;
 using UIKit;
 
-[assembly:Xamarin.Forms.Dependency(typeof(Xamarin.Forms.Platform.iOS.NativeValueConverterService))]
+[assembly: Xamarin.Forms.Dependency(typeof(Xamarin.Forms.Platform.iOS.NativeValueConverterService))]
 
 namespace Xamarin.Forms.Platform.iOS
 {

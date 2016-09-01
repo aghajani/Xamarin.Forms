@@ -7,6 +7,6 @@
 			 x:Class="Xamarin.Forms.Controls.XamlNativeViews">
 	<ContentPage.Content>
 		<ios:UILabel Text="{Binding NativeText}" View.HorizontalOptions="Start"/>
-		<androidWidget:TextView Text="I'm Native too" x:Arguments="{x:Static formsandroid:Forms.Context}" />
+		<androidWidget:TextView Text="{Binding NativeText}" x:Arguments="{x:Static formsandroid:Forms.Context}" />
 	</ContentPage.Content>
 </ContentPage>

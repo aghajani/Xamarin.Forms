@@ -290,32 +290,26 @@ namespace Xamarin.Forms.Xaml
 			var typeArguments = xmlType.TypeArguments;
 			exception = null;
 
-			List<Tuple<string, Assembly>> lookupAssemblies = new List<Tuple<string, Assembly>>();
-			List<string> lookupNames = new List<string>();
+			var lookupAssemblies = new List<Tuple<string, string>>(); //namespace, assemblyqualifiednamed
+			var lookupNames = new List<string>();
 
 			if (!XmlnsHelper.IsCustom(namespaceURI))
 			{
-				lookupAssemblies.Add(new Tuple<string, Assembly>("Xamarin.Forms", typeof (View).GetTypeInfo().Assembly));
-				lookupAssemblies.Add(new Tuple<string, Assembly>("Xamarin.Forms.Xaml", typeof (XamlLoader).GetTypeInfo().Assembly));
+				lookupAssemblies.Add(new Tuple<string, string>("Xamarin.Forms", typeof (View).GetTypeInfo().Assembly.FullName));
+				lookupAssemblies.Add(new Tuple<string, string>("Xamarin.Forms.Xaml", typeof (XamlLoader).GetTypeInfo().Assembly.FullName));
 			}
 			else if (namespaceURI == "http://schemas.microsoft.com/winfx/2009/xaml" ||
 			         namespaceURI == "http://schemas.microsoft.com/winfx/2006/xaml")
 			{
-				lookupAssemblies.Add(new Tuple<string, Assembly>("Xamarin.Forms.Xaml", typeof (XamlLoader).GetTypeInfo().Assembly));
-				lookupAssemblies.Add(new Tuple<string, Assembly>("System", typeof (object).GetTypeInfo().Assembly));
-				lookupAssemblies.Add(new Tuple<string, Assembly>("System", typeof (Uri).GetTypeInfo().Assembly)); //System.dll
+				lookupAssemblies.Add(new Tuple<string, string>("Xamarin.Forms.Xaml", typeof (XamlLoader).GetTypeInfo().Assembly.FullName));
+				lookupAssemblies.Add(new Tuple<string, string>("System", typeof (object).GetTypeInfo().Assembly.FullName)); //mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+				lookupAssemblies.Add(new Tuple<string, string>("System", typeof (Uri).GetTypeInfo().Assembly.FullName)); //System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
 			}
 			else
 			{
-				string ns;
-				string typename;
-				string asmstring;
-				string targetPlatform;
-				Assembly asm;
-
-				XmlnsHelper.ParseXmlns(namespaceURI, out typename, out ns, out asmstring, out targetPlatform);
-				asm = asmstring == null ? currentAssembly : Assembly.Load(new AssemblyName(asmstring));
-				lookupAssemblies.Add(new Tuple<string, Assembly>(ns, asm));
+				string ns, asmstring, _;
+				XmlnsHelper.ParseXmlns(namespaceURI, out _, out ns, out asmstring, out _);
+				lookupAssemblies.Add(new Tuple<string, string>(ns, asmstring ?? currentAssembly.FullName));
 			}
 
 			lookupNames.Add(elementName);
@@ -332,16 +326,12 @@ namespace Xamarin.Forms.Xaml
 			}
 
 			Type type = null;
-			foreach (var asm in lookupAssemblies)
-			{
+			foreach (var asm in lookupAssemblies) {
+				foreach (var name in lookupNames)
+					if ((type = Type.GetType($"{asm.Item1}.{name}, {asm.Item2}")) != null)
+						break;
 				if (type != null)
 					break;
-				foreach (var name in lookupNames)
-				{
-					if (type != null)
-						break;
-					type = asm.Item2.GetType(asm.Item1 + "." + name);
-				}
 			}
 
 			if (type != null && typeArguments != null)
@@ -367,11 +357,7 @@ namespace Xamarin.Forms.Xaml
 			}
 
 			if (type == null)
-			{
-				exception = new XamlParseException(string.Format("Type {0} not found in xmlns {1}", elementName, namespaceURI),
-					xmlInfo);
-				return null;
-			}
+				exception = new XamlParseException($"Type {elementName} not found in xmlns {namespaceURI}", xmlInfo);
 
 			return type;
 		}

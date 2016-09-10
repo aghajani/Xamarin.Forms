@@ -113,7 +113,7 @@ namespace Xamarin.Forms.Platform.Android
 			var builder = new AlertDialog.Builder(Context);
 			builder.SetView(layout);
 			builder.SetTitle(model.Title ?? "");
-			builder.SetNegativeButton(global::Android.Resource.String.Cancel, (s, a) =>
+			builder.SetNegativeButton(Platform.Resource_String_Cancel(), (s, a) =>
 			{
 				ElementController.SetValueFromRenderer(VisualElement.IsFocusedPropertyKey, false);
 				// It is possible for the Content of the Page to be changed when Focus is changed.
@@ -121,7 +121,7 @@ namespace Xamarin.Forms.Platform.Android
 				Control?.ClearFocus();
 				_dialog = null;
 			});
-			builder.SetPositiveButton(global::Android.Resource.String.Ok, (s, a) =>
+			builder.SetPositiveButton(Platform.Resource_String_OK(), (s, a) =>
 			{
 				ElementController.SetValueFromRenderer(Picker.SelectedIndexProperty, picker.Value);
 				// It is possible for the Content of the Page to be changed on SelectedIndexChanged. 

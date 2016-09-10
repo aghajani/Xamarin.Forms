@@ -6,337 +6,361 @@ using Xamarin.Forms.Platform;
 
 namespace Xamarin.Forms
 {
-	public class Application : Element, IResourcesProvider, IApplicationController, IElementConfiguration<Application>
-	{
-		static Application s_current;
-		readonly Task<IDictionary<string, object>> _propertiesTask;
-		readonly Lazy<PlatformConfigurationRegistry<Application>> _platformConfigurationRegistry;
+    public class Application : Element, IResourcesProvider, IApplicationController, IElementConfiguration<Application>
+    {
+        static Application s_current;
+        readonly Task<IDictionary<string, object>> _propertiesTask;
+        readonly Lazy<PlatformConfigurationRegistry<Application>> _platformConfigurationRegistry;
 
-		IAppIndexingProvider _appIndexProvider;
-		bool _isSaving;
+        IAppIndexingProvider _appIndexProvider;
+        bool _isSaving;
 
-		ReadOnlyCollection<Element> _logicalChildren;
+        ReadOnlyCollection<Element> _logicalChildren;
 
-		Page _mainPage;
+        Page _mainPage;
 
-		ResourceDictionary _resources;
-		bool _saveAgain;
+        ResourceDictionary _resources;
+        bool _saveAgain;
 
-		protected Application()
-		{
-			var f = false;
-			if (f)
-				Loader.Load();
-			NavigationProxy = new NavigationImpl(this);
-			Current = this;
-			_propertiesTask = GetPropertiesAsync();
+        protected Application()
+        {
+            var f = false;
+            if (f)
+                Loader.Load();
+            NavigationProxy = new NavigationImpl(this);
+            Current = this;
+            _propertiesTask = GetPropertiesAsync();
 
-			SystemResources = DependencyService.Get<ISystemResourcesProvider>().GetSystemResources();
-			SystemResources.ValuesChanged += OnParentResourcesChanged;
-			_platformConfigurationRegistry = new Lazy<PlatformConfigurationRegistry<Application>>(() => new PlatformConfigurationRegistry<Application>(this));
-		}
+            SystemResources = DependencyService.Get<ISystemResourcesProvider>().GetSystemResources();
+            SystemResources.ValuesChanged += OnParentResourcesChanged;
+            _platformConfigurationRegistry = new Lazy<PlatformConfigurationRegistry<Application>>(() => new PlatformConfigurationRegistry<Application>(this));
+        }
 
-		public IAppLinks AppLinks
-		{
-			get
-			{
-				if (_appIndexProvider == null)
-					throw new ArgumentException("No IAppIndexingProvider was provided");
-				if (_appIndexProvider.AppLinks == null)
-					throw new ArgumentException("No AppLinks implementation was found, if in Android make sure you installed the Xamarin.Forms.AppLinks");
-				return _appIndexProvider.AppLinks;
-			}
-		}
+        public IAppLinks AppLinks
+        {
+            get
+            {
+                if (_appIndexProvider == null)
+                    throw new ArgumentException("No IAppIndexingProvider was provided");
+                if (_appIndexProvider.AppLinks == null)
+                    throw new ArgumentException("No AppLinks implementation was found, if in Android make sure you installed the Xamarin.Forms.AppLinks");
+                return _appIndexProvider.AppLinks;
+            }
+        }
 
-		public static Application Current
-		{
-			get { return s_current; }
-			internal set
-			{
-				if (s_current == value)
-					return;
-				if (value == null)
-					s_current = null; //Allow to reset current for unittesting
-				s_current = value;
-			}
-		}
+        public static Application Current
+        {
+            get { return s_current; }
+            internal set
+            {
+                if (s_current == value)
+                    return;
+                if (value == null)
+                    s_current = null; //Allow to reset current for unittesting
+                s_current = value;
+            }
+        }
 
-		public Page MainPage
-		{
-			get { return _mainPage; }
-			set
-			{
-				if (value == null)
-					throw new ArgumentNullException("value");
+        private static string _DefaultFontFamily = "";
+        public static string DefaultFontFamily
+        {
+            get { return _DefaultFontFamily; }
+            set { _DefaultFontFamily = value; }
+        }
 
-				if (_mainPage == value)
-					return;
 
-				OnPropertyChanging();
-				if (_mainPage != null)
-				{
-					InternalChildren.Remove(_mainPage);
-					_mainPage.Parent = null;
-				}
+        private static string _Resource_String_OK;
+        public static string Resource_String_OK
+        {
+            get { return _Resource_String_OK; }
+            set { _Resource_String_OK = value; }
+        }
 
-				_mainPage = value;
 
-				if (_mainPage != null)
-				{
-					_mainPage.Parent = this;
-					_mainPage.NavigationProxy.Inner = NavigationProxy;
-					InternalChildren.Add(_mainPage);
-				}
-				OnPropertyChanged();
-			}
-		}
+        private static string _Resource_String_Cancel;
+        public static string Resource_String_Cancel
+        {
+            get { return _Resource_String_Cancel; }
+            set { _Resource_String_Cancel = value; }
+        }
 
-		public IDictionary<string, object> Properties
-		{
-			get { return _propertiesTask.Result; }
-		}
 
-		internal override ReadOnlyCollection<Element> LogicalChildrenInternal
-		{
-			get { return _logicalChildren ?? (_logicalChildren = new ReadOnlyCollection<Element>(InternalChildren)); }
-		}
+        public Page MainPage
+        {
+            get { return _mainPage; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("value");
 
-		internal NavigationProxy NavigationProxy { get; }
+                if (_mainPage == value)
+                    return;
 
-		internal int PanGestureId { get; set; }
+                OnPropertyChanging();
+                if (_mainPage != null)
+                {
+                    InternalChildren.Remove(_mainPage);
+                    _mainPage.Parent = null;
+                }
 
-		internal IResourceDictionary SystemResources { get; }
+                _mainPage = value;
 
-		ObservableCollection<Element> InternalChildren { get; } = new ObservableCollection<Element>();
+                if (_mainPage != null)
+                {
+                    _mainPage.Parent = this;
+                    _mainPage.NavigationProxy.Inner = NavigationProxy;
+                    InternalChildren.Add(_mainPage);
+                }
+                OnPropertyChanged();
+            }
+        }
 
-		void IApplicationController.SetAppIndexingProvider(IAppIndexingProvider provider)
-		{
-			_appIndexProvider = provider;
-		}
+        public IDictionary<string, object> Properties
+        {
+            get { return _propertiesTask.Result; }
+        }
 
-		public ResourceDictionary Resources
-		{
-			get { return _resources; }
-			set
-			{
-				if (_resources == value)
-					return;
-				OnPropertyChanging();
-				if (_resources != null)
-					((IResourceDictionary)_resources).ValuesChanged -= OnResourcesChanged;
-				_resources = value;
-				OnResourcesChanged(value);
-				if (_resources != null)
-					((IResourceDictionary)_resources).ValuesChanged += OnResourcesChanged;
-				OnPropertyChanged();
-			}
-		}
+        internal override ReadOnlyCollection<Element> LogicalChildrenInternal
+        {
+            get { return _logicalChildren ?? (_logicalChildren = new ReadOnlyCollection<Element>(InternalChildren)); }
+        }
 
-		public event EventHandler<ModalPoppedEventArgs> ModalPopped;
+        internal NavigationProxy NavigationProxy { get; }
 
-		public event EventHandler<ModalPoppingEventArgs> ModalPopping;
+        internal int PanGestureId { get; set; }
 
-		public event EventHandler<ModalPushedEventArgs> ModalPushed;
+        internal IResourceDictionary SystemResources { get; }
 
-		public event EventHandler<ModalPushingEventArgs> ModalPushing;
+        ObservableCollection<Element> InternalChildren { get; } = new ObservableCollection<Element>();
 
-		public async Task SavePropertiesAsync()
-		{
-			if (Device.IsInvokeRequired)
-				Device.BeginInvokeOnMainThread(async () => await SetPropertiesAsync());
-			else
-				await SetPropertiesAsync();
-		}
+        void IApplicationController.SetAppIndexingProvider(IAppIndexingProvider provider)
+        {
+            _appIndexProvider = provider;
+        }
 
-		public IPlatformElementConfiguration<T, Application> On<T>() where T : IConfigPlatform
-		{
-			return _platformConfigurationRegistry.Value.On<T>();
-		}
+        public ResourceDictionary Resources
+        {
+            get { return _resources; }
+            set
+            {
+                if (_resources == value)
+                    return;
+                OnPropertyChanging();
+                if (_resources != null)
+                    ((IResourceDictionary)_resources).ValuesChanged -= OnResourcesChanged;
+                _resources = value;
+                OnResourcesChanged(value);
+                if (_resources != null)
+                    ((IResourceDictionary)_resources).ValuesChanged += OnResourcesChanged;
+                OnPropertyChanged();
+            }
+        }
 
-		protected virtual void OnAppLinkRequestReceived(Uri uri)
-		{
-		}
+        public event EventHandler<ModalPoppedEventArgs> ModalPopped;
 
-		protected override void OnParentSet()
-		{
-			throw new InvalidOperationException("Setting a Parent on Application is invalid.");
-		}
+        public event EventHandler<ModalPoppingEventArgs> ModalPopping;
 
-		protected virtual void OnResume()
-		{
-		}
+        public event EventHandler<ModalPushedEventArgs> ModalPushed;
 
-		protected virtual void OnSleep()
-		{
-		}
+        public event EventHandler<ModalPushingEventArgs> ModalPushing;
 
-		protected virtual void OnStart()
-		{
-		}
+        public async Task SavePropertiesAsync()
+        {
+            if (Device.IsInvokeRequired)
+                Device.BeginInvokeOnMainThread(async () => await SetPropertiesAsync());
+            else
+                await SetPropertiesAsync();
+        }
 
-		internal static void ClearCurrent()
-		{
-			s_current = null;
-		}
+        public IPlatformElementConfiguration<T, Application> On<T>() where T : IConfigPlatform
+        {
+            return _platformConfigurationRegistry.Value.On<T>();
+        }
 
-		internal static bool IsApplicationOrNull(Element element)
-		{
-			return element == null || element is Application;
-		}
+        protected virtual void OnAppLinkRequestReceived(Uri uri)
+        {
+        }
 
-		internal override void OnParentResourcesChanged(IEnumerable<KeyValuePair<string, object>> values)
-		{
-			if (Resources == null || Resources.Count == 0)
-			{
-				base.OnParentResourcesChanged(values);
-				return;
-			}
+        protected override void OnParentSet()
+        {
+            throw new InvalidOperationException("Setting a Parent on Application is invalid.");
+        }
 
-			var innerKeys = new HashSet<string>();
-			var changedResources = new List<KeyValuePair<string, object>>();
-			foreach (KeyValuePair<string, object> c in Resources)
-				innerKeys.Add(c.Key);
-			foreach (KeyValuePair<string, object> value in values)
-			{
-				if (innerKeys.Add(value.Key))
-					changedResources.Add(value);
-			}
-			OnResourcesChanged(changedResources);
-		}
+        protected virtual void OnResume()
+        {
+        }
 
-		internal event EventHandler PopCanceled;
+        protected virtual void OnSleep()
+        {
+        }
 
-		internal void SendOnAppLinkRequestReceived(Uri uri)
-		{
-			OnAppLinkRequestReceived(uri);
-		}
+        protected virtual void OnStart()
+        {
+        }
 
-		internal void SendResume()
-		{
-			s_current = this;
-			OnResume();
-		}
+        internal static void ClearCurrent()
+        {
+            s_current = null;
+        }
 
-		internal Task SendSleepAsync()
-		{
-			OnSleep();
-			return SavePropertiesAsync();
-		}
+        internal static bool IsApplicationOrNull(Element element)
+        {
+            return element == null || element is Application;
+        }
 
-		internal void SendStart()
-		{
-			OnStart();
-		}
+        internal override void OnParentResourcesChanged(IEnumerable<KeyValuePair<string, object>> values)
+        {
+            if (Resources == null || Resources.Count == 0)
+            {
+                base.OnParentResourcesChanged(values);
+                return;
+            }
 
-		async Task<IDictionary<string, object>> GetPropertiesAsync()
-		{
-			var deserializer = DependencyService.Get<IDeserializer>();
-			if (deserializer == null)
-			{
-				Log.Warning("Startup", "No IDeserialzier was found registered");
-				return new Dictionary<string, object>(4);
-			}
+            var innerKeys = new HashSet<string>();
+            var changedResources = new List<KeyValuePair<string, object>>();
+            foreach (KeyValuePair<string, object> c in Resources)
+                innerKeys.Add(c.Key);
+            foreach (KeyValuePair<string, object> value in values)
+            {
+                if (innerKeys.Add(value.Key))
+                    changedResources.Add(value);
+            }
+            OnResourcesChanged(changedResources);
+        }
 
-			IDictionary<string, object> properties = await deserializer.DeserializePropertiesAsync().ConfigureAwait(false);
-			if (properties == null)
-				properties = new Dictionary<string, object>(4);
+        internal event EventHandler PopCanceled;
 
-			return properties;
-		}
+        internal void SendOnAppLinkRequestReceived(Uri uri)
+        {
+            OnAppLinkRequestReceived(uri);
+        }
 
-		void OnModalPopped(Page modalPage)
-		{
-			EventHandler<ModalPoppedEventArgs> handler = ModalPopped;
-			if (handler != null)
-				handler(this, new ModalPoppedEventArgs(modalPage));
-		}
+        internal void SendResume()
+        {
+            s_current = this;
+            OnResume();
+        }
 
-		bool OnModalPopping(Page modalPage)
-		{
-			EventHandler<ModalPoppingEventArgs> handler = ModalPopping;
-			var args = new ModalPoppingEventArgs(modalPage);
-			if (handler != null)
-				handler(this, args);
-			return args.Cancel;
-		}
+        internal Task SendSleepAsync()
+        {
+            OnSleep();
+            return SavePropertiesAsync();
+        }
 
-		void OnModalPushed(Page modalPage)
-		{
-			EventHandler<ModalPushedEventArgs> handler = ModalPushed;
-			if (handler != null)
-				handler(this, new ModalPushedEventArgs(modalPage));
-		}
+        internal void SendStart()
+        {
+            OnStart();
+        }
 
-		void OnModalPushing(Page modalPage)
-		{
-			EventHandler<ModalPushingEventArgs> handler = ModalPushing;
-			if (handler != null)
-				handler(this, new ModalPushingEventArgs(modalPage));
-		}
+        async Task<IDictionary<string, object>> GetPropertiesAsync()
+        {
+            var deserializer = DependencyService.Get<IDeserializer>();
+            if (deserializer == null)
+            {
+                Log.Warning("Startup", "No IDeserialzier was found registered");
+                return new Dictionary<string, object>(4);
+            }
 
-		void OnPopCanceled()
-		{
-			EventHandler handler = PopCanceled;
-			if (handler != null)
-				handler(this, EventArgs.Empty);
-		}
+            IDictionary<string, object> properties = await deserializer.DeserializePropertiesAsync().ConfigureAwait(false);
+            if (properties == null)
+                properties = new Dictionary<string, object>(4);
 
-		async Task SetPropertiesAsync()
-		{
-			if (_isSaving)
-			{
-				_saveAgain = true;
-				return;
-			}
-			_isSaving = true;
-			await DependencyService.Get<IDeserializer>().SerializePropertiesAsync(Properties);
-			if (_saveAgain)
-				await DependencyService.Get<IDeserializer>().SerializePropertiesAsync(Properties);
-			_isSaving = _saveAgain = false;
-		}
+            return properties;
+        }
 
-		class NavigationImpl : NavigationProxy
-		{
-			readonly Application _owner;
+        void OnModalPopped(Page modalPage)
+        {
+            EventHandler<ModalPoppedEventArgs> handler = ModalPopped;
+            if (handler != null)
+                handler(this, new ModalPoppedEventArgs(modalPage));
+        }
 
-			public NavigationImpl(Application owner)
-			{
-				_owner = owner;
-			}
+        bool OnModalPopping(Page modalPage)
+        {
+            EventHandler<ModalPoppingEventArgs> handler = ModalPopping;
+            var args = new ModalPoppingEventArgs(modalPage);
+            if (handler != null)
+                handler(this, args);
+            return args.Cancel;
+        }
 
-			protected override async Task<Page> OnPopModal(bool animated)
-			{
-				Page modal = ModalStack[ModalStack.Count - 1];
-				if (_owner.OnModalPopping(modal))
-				{
-					_owner.OnPopCanceled();
-					return null;
-				}
-				Page result = await base.OnPopModal(animated);
-				result.Parent = null;
-				_owner.OnModalPopped(result);
-				return result;
-			}
+        void OnModalPushed(Page modalPage)
+        {
+            EventHandler<ModalPushedEventArgs> handler = ModalPushed;
+            if (handler != null)
+                handler(this, new ModalPushedEventArgs(modalPage));
+        }
 
-			protected override async Task OnPushModal(Page modal, bool animated)
-			{
-				_owner.OnModalPushing(modal);
+        void OnModalPushing(Page modalPage)
+        {
+            EventHandler<ModalPushingEventArgs> handler = ModalPushing;
+            if (handler != null)
+                handler(this, new ModalPushingEventArgs(modalPage));
+        }
 
-				modal.Parent = _owner;
+        void OnPopCanceled()
+        {
+            EventHandler handler = PopCanceled;
+            if (handler != null)
+                handler(this, EventArgs.Empty);
+        }
 
-				if (modal.NavigationProxy.ModalStack.Count == 0)
-				{
-					modal.NavigationProxy.Inner = this;
-					await base.OnPushModal(modal, animated);
-				}
-				else
-				{
-					await base.OnPushModal(modal, animated);
-					modal.NavigationProxy.Inner = this;
-				}
+        async Task SetPropertiesAsync()
+        {
+            if (_isSaving)
+            {
+                _saveAgain = true;
+                return;
+            }
+            _isSaving = true;
+            await DependencyService.Get<IDeserializer>().SerializePropertiesAsync(Properties);
+            if (_saveAgain)
+                await DependencyService.Get<IDeserializer>().SerializePropertiesAsync(Properties);
+            _isSaving = _saveAgain = false;
+        }
 
-				_owner.OnModalPushed(modal);
-			}
-		}
-	}
+        class NavigationImpl : NavigationProxy
+        {
+            readonly Application _owner;
+
+            public NavigationImpl(Application owner)
+            {
+                _owner = owner;
+            }
+
+            protected override async Task<Page> OnPopModal(bool animated)
+            {
+                Page modal = ModalStack[ModalStack.Count - 1];
+                if (_owner.OnModalPopping(modal))
+                {
+                    _owner.OnPopCanceled();
+                    return null;
+                }
+                Page result = await base.OnPopModal(animated);
+                result.Parent = null;
+                _owner.OnModalPopped(result);
+                return result;
+            }
+
+            protected override async Task OnPushModal(Page modal, bool animated)
+            {
+                _owner.OnModalPushing(modal);
+
+                modal.Parent = _owner;
+
+                if (modal.NavigationProxy.ModalStack.Count == 0)
+                {
+                    modal.NavigationProxy.Inner = this;
+                    await base.OnPushModal(modal, animated);
+                }
+                else
+                {
+                    await base.OnPushModal(modal, animated);
+                    modal.NavigationProxy.Inner = this;
+                }
+
+                _owner.OnModalPushed(modal);
+            }
+        }
+    }
 }

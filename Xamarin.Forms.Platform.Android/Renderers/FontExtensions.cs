@@ -14,6 +14,20 @@ namespace Xamarin.Forms.Platform.Android
 
 		static Typeface s_defaultTypeface;
 
+        private static Typeface _DefaultTypeface_Get()
+        {
+            if (s_defaultTypeface == null)
+            {
+                if (string.IsNullOrWhiteSpace(Application.DefaultFontFamily))
+                    s_defaultTypeface = Typeface.Default;
+                else
+                {
+                    s_defaultTypeface = Typeface.CreateFromAsset(AApplication.Context.Assets, FontNameToFontFile(Application.DefaultFontFamily));
+                }
+            }
+            return s_defaultTypeface;
+        }
+
 		public static float ToScaledPixel(this Font self)
 		{
 			if (self.IsDefault)
@@ -44,7 +58,7 @@ namespace Xamarin.Forms.Platform.Android
 		public static Typeface ToTypeface(this Font self)
 		{
 			if (self.IsDefault)
-				return s_defaultTypeface ?? (s_defaultTypeface = Typeface.Default);
+				return s_defaultTypeface ?? _DefaultTypeface_Get();
 
 			var key = new Tuple<string, FontAttributes>(self.FontFamily, self.FontAttributes);
 			Typeface result;
@@ -54,7 +68,7 @@ namespace Xamarin.Forms.Platform.Android
 			if (self.FontFamily == null)
 			{
 				var style = ToTypefaceStyle(self.FontAttributes);
-				result = Typeface.Create(Typeface.Default, style);
+				result = Typeface.Create(_DefaultTypeface_Get(), style);
 			}
 			else if (LoadFromAssets.IsMatch(self.FontFamily))
 			{
@@ -76,7 +90,7 @@ namespace Xamarin.Forms.Platform.Android
 		internal static Typeface ToTypeface(this IFontElement self)
 		{
 			if (self.IsDefault())
-				return s_defaultTypeface ?? (s_defaultTypeface = Typeface.Default);
+				return s_defaultTypeface ?? _DefaultTypeface_Get();
 
 			var key = new Tuple<string, FontAttributes>(self.FontFamily, self.FontAttributes);
 			Typeface result;
@@ -86,7 +100,7 @@ namespace Xamarin.Forms.Platform.Android
 			if (self.FontFamily == null)
 			{
 				var style = ToTypefaceStyle(self.FontAttributes);
-				result = Typeface.Create(Typeface.Default, style);
+				result = Typeface.Create(_DefaultTypeface_Get(), style);
 			}
 			else if (LoadFromAssets.IsMatch(self.FontFamily))
 			{

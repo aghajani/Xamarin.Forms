@@ -15,34 +15,43 @@ namespace Xamarin.Forms.Platform.WinRT
 {
 	public static class FontExtensions
 	{
+        private static string _FixFontPath(string fontPath)
+        {
+            return $@"/Assets/{fontPath}";
+        }
+
 		public static void ApplyFont(this Control self, Font font)
 		{
+            string fontFamily = font.FontFamily ?? _FixFontPath(Application.DefaultFontFamily);
 			self.FontSize = font.UseNamedSize ? font.NamedSize.GetFontSize() : font.FontSize;
-			self.FontFamily = !string.IsNullOrEmpty(font.FontFamily) ? new FontFamily(font.FontFamily) : (FontFamily)WApplication.Current.Resources["ContentControlThemeFontFamily"];
+			self.FontFamily = !string.IsNullOrEmpty(fontFamily) ? new FontFamily(fontFamily) : (FontFamily)WApplication.Current.Resources["ContentControlThemeFontFamily"];
 			self.FontStyle = font.FontAttributes.HasFlag(FontAttributes.Italic) ? FontStyle.Italic : FontStyle.Normal;
 			self.FontWeight = font.FontAttributes.HasFlag(FontAttributes.Bold) ? FontWeights.Bold : FontWeights.Normal;
 		}
 
-		public static void ApplyFont(this TextBlock self, Font font)
+        public static void ApplyFont(this TextBlock self, Font font)
 		{
-			self.FontSize = font.UseNamedSize ? font.NamedSize.GetFontSize() : font.FontSize;
-			self.FontFamily = !string.IsNullOrEmpty(font.FontFamily) ? new FontFamily(font.FontFamily) : (FontFamily)WApplication.Current.Resources["ContentControlThemeFontFamily"];
+            string fontFamily = font.FontFamily ?? _FixFontPath(Application.DefaultFontFamily);
+            self.FontSize = font.UseNamedSize ? font.NamedSize.GetFontSize() : font.FontSize;
+			self.FontFamily = !string.IsNullOrEmpty(fontFamily) ? new FontFamily(fontFamily) : (FontFamily)WApplication.Current.Resources["ContentControlThemeFontFamily"];
 			self.FontStyle = font.FontAttributes.HasFlag(FontAttributes.Italic) ? FontStyle.Italic : FontStyle.Normal;
 			self.FontWeight = font.FontAttributes.HasFlag(FontAttributes.Bold) ? FontWeights.Bold : FontWeights.Normal;
 		}
 
 		public static void ApplyFont(this TextElement self, Font font)
 		{
-			self.FontSize = font.UseNamedSize ? font.NamedSize.GetFontSize() : font.FontSize;
-			self.FontFamily = !string.IsNullOrEmpty(font.FontFamily) ? new FontFamily(font.FontFamily) : (FontFamily)WApplication.Current.Resources["ContentControlThemeFontFamily"];
+            string fontFamily = font.FontFamily ?? _FixFontPath(Application.DefaultFontFamily);
+            self.FontSize = font.UseNamedSize ? font.NamedSize.GetFontSize() : font.FontSize;
+			self.FontFamily = !string.IsNullOrEmpty(fontFamily) ? new FontFamily(fontFamily) : (FontFamily)WApplication.Current.Resources["ContentControlThemeFontFamily"];
 			self.FontStyle = font.FontAttributes.HasFlag(FontAttributes.Italic) ? FontStyle.Italic : FontStyle.Normal;
 			self.FontWeight = font.FontAttributes.HasFlag(FontAttributes.Bold) ? FontWeights.Bold : FontWeights.Normal;
 		}
 
 		internal static void ApplyFont(this Control self, IFontElement element)
 		{
+            string fontFamily = element.FontFamily ?? _FixFontPath(Application.DefaultFontFamily);
 			self.FontSize = element.FontSize;
-			self.FontFamily = !string.IsNullOrEmpty(element.FontFamily) ? new FontFamily(element.FontFamily) : (FontFamily)WApplication.Current.Resources["ContentControlThemeFontFamily"];
+			self.FontFamily = !string.IsNullOrEmpty(fontFamily) ? new FontFamily(fontFamily) : (FontFamily)WApplication.Current.Resources["ContentControlThemeFontFamily"];
 			self.FontStyle = element.FontAttributes.HasFlag(FontAttributes.Italic) ? FontStyle.Italic : FontStyle.Normal;
 			self.FontWeight = element.FontAttributes.HasFlag(FontAttributes.Bold) ? FontWeights.Bold : FontWeights.Normal;
 		}

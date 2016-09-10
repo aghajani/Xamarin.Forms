@@ -15,7 +15,9 @@ namespace Xamarin.Forms
 		public static readonly BindableProperty MasterBehaviorProperty = BindableProperty.Create("MasterBehavior", typeof(MasterBehavior), typeof(MasterDetailPage), default(MasterBehavior),
 			propertyChanged: OnMasterBehaviorPropertyChanged);
 
-		Page _detail;
+        public static readonly BindableProperty MasterWidthRequestProperty = BindableProperty.Create("MasterWidthRequest", typeof(double?), typeof(MasterDetailPage), default(double?));
+
+        Page _detail;
 
 		Rectangle _detailBounds;
 
@@ -48,7 +50,13 @@ namespace Xamarin.Forms
 			}
 		}
 
-		public bool IsGestureEnabled
+        public double? MasterWidthRequest
+        {
+            get { return (double?)GetValue(MasterWidthRequestProperty); }
+            set { SetValue(MasterWidthRequestProperty, value); }
+        }
+
+        public bool IsGestureEnabled
 		{
 			get { return (bool)GetValue(IsGestureEnabledProperty); }
 			set { SetValue(IsGestureEnabledProperty, value); }

@@ -189,6 +189,8 @@ namespace Xamarin.Forms.Platform.iOS
 		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
+            if (MasterDetailPage?.MasterWidthRequest != null)
+                MaximumPrimaryColumnWidth = (nfloat)MasterDetailPage.MasterWidthRequest.Value;
 			UpdateBackground();
 			_tracker = new VisualElementTracker(this);
 			_events = new EventTracker(this);

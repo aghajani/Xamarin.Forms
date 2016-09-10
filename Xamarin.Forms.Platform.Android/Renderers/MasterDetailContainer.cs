@@ -122,20 +122,21 @@ namespace Xamarin.Forms.Platform.Android
 			double xPos = 0;
 			bool supressPadding = false;
 
-			//splitview
-			if (MasterDetailPageController.ShouldShowSplitMode)
+            double widthMaster = _parent?.MasterWidthRequest ?? DefaultWidthMaster;
+            //splitview
+            if (MasterDetailPageController.ShouldShowSplitMode)
 			{
 				//to keep some behavior we have on iPad where you can toggle and it won't do anything 
 				bool isDefaultNoToggle = _parent.MasterBehavior == MasterBehavior.Default;
-				xPos = isMasterPage ? 0 : (_parent.IsPresented || isDefaultNoToggle ? DefaultWidthMaster : 0);
-				width = isMasterPage ? DefaultWidthMaster : _parent.IsPresented || isDefaultNoToggle ? width - DefaultWidthMaster : width;
+				xPos = isMasterPage ? 0 : (_parent.IsPresented || isDefaultNoToggle ? widthMaster : 0);
+                    width = isMasterPage ? widthMaster : _parent.IsPresented || isDefaultNoToggle ? width - widthMaster : width;
 			}
 			else
 			{
 				//if we are showing the normal popover master doesn't have padding
 				supressPadding = isMasterPage;
 				//popover make the master smaller
-				width = isMasterPage && (Device.Info.CurrentOrientation.IsLandscape() || Device.Idiom == TargetIdiom.Tablet) ? DefaultWidthMaster : width;
+				width = isMasterPage && (Device.Info.CurrentOrientation.IsLandscape() || Device.Idiom == TargetIdiom.Tablet) ? widthMaster : width;
 			}
 
 			double padding = supressPadding ? 0 : Context.FromPixels(TopPadding);

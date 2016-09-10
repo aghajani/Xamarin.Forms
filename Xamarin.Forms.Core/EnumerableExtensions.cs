@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Xamarin.Forms
 {
@@ -7,13 +8,16 @@ namespace Xamarin.Forms
 	{
 		public static IEnumerable<T> GetGesturesFor<T>(this IEnumerable<IGestureRecognizer> gestures, Func<T, bool> predicate = null) where T : GestureRecognizer
 		{
-			if (gestures == null)
+            //Copy to prevent collection modify errors in foreach s
+            var gesturesCopy = gestures.ToList();
+
+            if (gesturesCopy == null)
 				yield break;
 
 			if (predicate == null)
 				predicate = x => true;
 
-			foreach (IGestureRecognizer item in gestures)
+			foreach (IGestureRecognizer item in gesturesCopy)
 			{
 				var gesture = item as T;
 				if (gesture != null && predicate(gesture))

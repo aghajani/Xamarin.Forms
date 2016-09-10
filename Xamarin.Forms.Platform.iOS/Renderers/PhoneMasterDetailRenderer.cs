@@ -255,8 +255,10 @@ namespace Xamarin.Forms.Platform.iOS
 			var frame = Element.Bounds.ToRectangleF();
 			var masterFrame = frame;
 			masterFrame.Width = (int)(Math.Min(masterFrame.Width, masterFrame.Height) * 0.8);
+            if ((Element as MasterDetailPage)?.MasterWidthRequest != null)
+                masterFrame.Width = (int)(Math.Min(masterFrame.Width, (Element as MasterDetailPage).MasterWidthRequest.Value));
 
-			_masterController.View.Frame = masterFrame;
+            _masterController.View.Frame = masterFrame;
 
 			var target = frame;
 			if (Presented)

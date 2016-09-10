@@ -111,7 +111,17 @@ namespace Xamarin.Forms.Platform.iOS
 			var bold = (attributes & FontAttributes.Bold) != 0;
 			var italic = (attributes & FontAttributes.Italic) != 0;
 
-			if (family != null)
+            if (string.IsNullOrWhiteSpace(family) && !string.IsNullOrWhiteSpace(Application.DefaultFontFamily))
+            {
+                var s1 = Application.DefaultFontFamily;
+                if (s1.Contains("#"))
+                    s1 = s1.Substring(0, s1.IndexOf("#"));
+                if(s1.Contains(".ttf"))
+                    s1 = s1.Substring(0, s1.IndexOf(".ttf"));
+                family = s1;
+            }
+
+            if (family != null)
 			{
 				try
 				{

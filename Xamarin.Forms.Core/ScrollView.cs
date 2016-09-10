@@ -83,7 +83,7 @@ namespace Xamarin.Forms
 
 			if (position == ScrollToPosition.MakeVisible)
 			{
-				bool isItemVisible = ScrollX < y && ScrollY + Height > y;
+				bool isItemVisible = ScrollX > x && ScrollY + Height > y;
 				if (isItemVisible)
 					return new Point(ScrollX, ScrollY);
 				switch (Orientation)

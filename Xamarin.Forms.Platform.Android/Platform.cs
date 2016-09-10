@@ -72,7 +72,16 @@ namespace Xamarin.Forms.Platform.Android
 
 		#endregion
 
-		IPageController CurrentPageController => _navModel.CurrentPage as IPageController;
+        public static string Resource_String_OK()
+        {
+            return (string.IsNullOrWhiteSpace(Application.Resource_String_OK)) ? Forms.Context.GetString(global::Android.Resource.String.Ok) : Application.Resource_String_OK;
+        }
+        public static string Resource_String_Cancel()
+        {
+            return (string.IsNullOrWhiteSpace(Application.Resource_String_Cancel)) ? Forms.Context.GetString(global::Android.Resource.String.Cancel) : Application.Resource_String_Cancel;
+        }
+
+        IPageController CurrentPageController => _navModel.CurrentPage as IPageController;
 
 		ActionBar ActionBar
 		{

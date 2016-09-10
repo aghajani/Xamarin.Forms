@@ -268,7 +268,7 @@ namespace Xamarin.Forms.Platform.Android
 			OnStateChanged();
 		}
 
-		internal int GetStatusBarHeight()
+		virtual public int GetStatusBarHeight()
 		{
 			if (_statusBarHeight >= 0)
 				return _statusBarHeight;

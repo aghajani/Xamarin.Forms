@@ -197,21 +197,22 @@ namespace Xamarin.Forms
 
 			public double GetNamedSize(NamedSize size, Type targetElementType, bool useOldSizes)
 			{
-				// We make these up anyway, so new sizes didn't really change
-				// iOS docs say default button font size is 15, default label font size is 17 so we use those as the defaults.
-				switch (size)
+                float defaultFontSize = Application.DefaultFontSize ?? (typeof(Button).IsAssignableFrom(targetElementType) ? 15 : 17);
+                // We make these up anyway, so new sizes didn't really change
+                // iOS docs say default button font size is 15, default label font size is 17 so we use those as the defaults.
+                switch (size)
 				{
 					case NamedSize.Default:
-						return typeof(Button).IsAssignableFrom(targetElementType) ? 15 : 17;
+                        return defaultFontSize; //typeof(Button).IsAssignableFrom(targetElementType) ? 15 : 17;
 					case NamedSize.Micro:
-						return 12;
-					case NamedSize.Small:
-						return 14;
-					case NamedSize.Medium:
-						return 17;
-					case NamedSize.Large:
-						return 22;
-					default:
+                        return defaultFontSize * (12f / 17f); //return 12;
+                    case NamedSize.Small:
+                        return defaultFontSize * (14f / 17f); //return 14;
+                    case NamedSize.Medium:
+                        return defaultFontSize * (17f / 17f); //return 17;
+                    case NamedSize.Large:
+                        return defaultFontSize * (22f / 17f); //return 22;
+                    default:
 						throw new ArgumentOutOfRangeException("size");
 				}
 			}

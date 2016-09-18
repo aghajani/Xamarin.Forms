@@ -367,6 +367,7 @@ namespace Xamarin.Forms
                         case NamedSize.Large:
                             return Application.DefaultFontSize.Value * 1.2;
                         default:
+                            throw new ArgumentOutOfRangeException("size");
                             break;
                     }
                 }

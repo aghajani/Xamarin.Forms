@@ -140,6 +140,12 @@ namespace Xamarin.Forms.Platform.UWP
 					Tracker = new VisualElementTracker<Page, FrameworkElement> { Container = Control, Element = Element };
 				}
 
+                if (e.NewElement.MasterTitleBarIsVisible == false)
+                {
+                    Control.MasterToolbarVisibility = Visibility.Collapsed;
+                    Control.MasterTitleBarVisibility = Visibility.Collapsed;
+                }
+
 				e.NewElement.PropertyChanged += OnElementPropertyChanged;
 				UpdateDetail();
 				UpdateMaster();

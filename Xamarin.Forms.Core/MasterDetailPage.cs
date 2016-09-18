@@ -17,6 +17,8 @@ namespace Xamarin.Forms
 
         public static readonly BindableProperty MasterWidthRequestProperty = BindableProperty.Create("MasterWidthRequest", typeof(double?), typeof(MasterDetailPage), default(double?));
 
+        public static readonly BindableProperty MasterTitleBarIsVisibleProperty = BindableProperty.Create("MasterTitleBarIsVisible", typeof(bool?), typeof(MasterDetailPage), default(bool?));
+
         Page _detail;
 
 		Rectangle _detailBounds;
@@ -49,6 +51,12 @@ namespace Xamarin.Forms
 				OnPropertyChanged();
 			}
 		}
+
+        public bool? MasterTitleBarIsVisible
+        {
+            get { return (bool?)GetValue(MasterTitleBarIsVisibleProperty); }
+            set { SetValue(MasterTitleBarIsVisibleProperty, value); }
+        }
 
         public double? MasterWidthRequest
         {

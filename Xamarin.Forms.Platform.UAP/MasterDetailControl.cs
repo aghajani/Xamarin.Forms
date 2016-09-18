@@ -45,7 +45,10 @@ namespace Xamarin.Forms.Platform.UWP
 		public static readonly DependencyProperty MasterToolbarVisibilityProperty = DependencyProperty.Register("MasterToolbarVisibility", typeof(Visibility), typeof(MasterDetailControl),
 			new PropertyMetadata(default(Visibility)));
 
-		public static readonly DependencyProperty ContentTogglePaneButtonVisibilityProperty = DependencyProperty.Register(nameof(ContentTogglePaneButtonVisibility), typeof(Visibility), typeof(MasterDetailControl),
+        public static readonly DependencyProperty MasterTitleBarVisibilityProperty = DependencyProperty.Register("MasterTitleBarVisibility", typeof(Visibility), typeof(MasterDetailControl),
+            new PropertyMetadata(default(Visibility)));
+
+        public static readonly DependencyProperty ContentTogglePaneButtonVisibilityProperty = DependencyProperty.Register(nameof(ContentTogglePaneButtonVisibility), typeof(Visibility), typeof(MasterDetailControl),
 			new PropertyMetadata(default(Visibility)));
 		
 		CommandBar _commandBar;
@@ -94,8 +97,14 @@ namespace Xamarin.Forms.Platform.UWP
 				return new Windows.Foundation.Size(width, height);
 			}
 		}
+        
+        public Visibility MasterTitleBarVisibility
+        {
+            get { return (Visibility)GetValue(MasterTitleBarVisibilityProperty); }
+            set { SetValue(MasterTitleBarVisibilityProperty, value); }
+        }
 
-		public string DetailTitle
+        public string DetailTitle
 		{
 			get { return (string)GetValue(DetailTitleProperty); }
 			set { SetValue(DetailTitleProperty, value); }

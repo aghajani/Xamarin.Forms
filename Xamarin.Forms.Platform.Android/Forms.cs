@@ -305,51 +305,71 @@ namespace Xamarin.Forms
 					_microSize = Math.Max(1, _smallSize - (_mediumSize - _smallSize));
 				}
 
-				if (useOldSizes)
-				{
-					switch (size)
-					{
-						case NamedSize.Default:
-							if (typeof(Button).IsAssignableFrom(targetElementType))
-								return _buttonDefaultSize;
-							if (typeof(Label).IsAssignableFrom(targetElementType))
-								return _labelDefaultSize;
-							if (typeof(Editor).IsAssignableFrom(targetElementType) || typeof(Entry).IsAssignableFrom(targetElementType) || typeof(SearchBar).IsAssignableFrom(targetElementType))
-								return _editTextDefaultSize;
-							return 14;
-						case NamedSize.Micro:
-							return 10;
-						case NamedSize.Small:
-							return 12;
-						case NamedSize.Medium:
-							return 14;
-						case NamedSize.Large:
-							return 18;
-						default:
-							throw new ArgumentOutOfRangeException("size");
-					}
-				}
-				switch (size)
-				{
-					case NamedSize.Default:
-						if (typeof(Button).IsAssignableFrom(targetElementType))
-							return _buttonDefaultSize;
-						if (typeof(Label).IsAssignableFrom(targetElementType))
-							return _labelDefaultSize;
-						if (typeof(Editor).IsAssignableFrom(targetElementType) || typeof(Entry).IsAssignableFrom(targetElementType))
-							return _editTextDefaultSize;
-						return _mediumSize;
-					case NamedSize.Micro:
-						return _microSize;
-					case NamedSize.Small:
-						return _smallSize;
-					case NamedSize.Medium:
-						return _mediumSize;
-					case NamedSize.Large:
-						return _largeSize;
-					default:
-						throw new ArgumentOutOfRangeException("size");
-				}
+                if (Application.DefaultFontSize == null)
+                {
+                    if (useOldSizes)
+                    {
+                        switch (size)
+                        {
+                            case NamedSize.Default:
+                                if (typeof(Button).IsAssignableFrom(targetElementType))
+                                    return _buttonDefaultSize;
+                                if (typeof(Label).IsAssignableFrom(targetElementType))
+                                    return _labelDefaultSize;
+                                if (typeof(Editor).IsAssignableFrom(targetElementType) || typeof(Entry).IsAssignableFrom(targetElementType) || typeof(SearchBar).IsAssignableFrom(targetElementType))
+                                    return _editTextDefaultSize;
+                                return 14;
+                            case NamedSize.Micro:
+                                return 10;
+                            case NamedSize.Small:
+                                return 12;
+                            case NamedSize.Medium:
+                                return 14;
+                            case NamedSize.Large:
+                                return 18;
+                            default:
+                                throw new ArgumentOutOfRangeException("size");
+                        }
+                    }
+                    switch (size)
+                    {
+                        case NamedSize.Default:
+                            if (typeof(Button).IsAssignableFrom(targetElementType))
+                                return _buttonDefaultSize;
+                            if (typeof(Label).IsAssignableFrom(targetElementType))
+                                return _labelDefaultSize;
+                            if (typeof(Editor).IsAssignableFrom(targetElementType) || typeof(Entry).IsAssignableFrom(targetElementType))
+                                return _editTextDefaultSize;
+                            return _mediumSize;
+                        case NamedSize.Micro:
+                            return _microSize;
+                        case NamedSize.Small:
+                            return _smallSize;
+                        case NamedSize.Medium:
+                            return _mediumSize;
+                        case NamedSize.Large:
+                            return _largeSize;
+                        default:
+                            throw new ArgumentOutOfRangeException("size");
+                    }
+                }
+                else
+                {
+                    switch (size)
+                    {
+                        case NamedSize.Medium:
+                        case NamedSize.Default:
+                            break;
+                        case NamedSize.Micro:
+                            break;
+                        case NamedSize.Small:
+                            break;
+                        case NamedSize.Large:
+                            break;
+                        default:
+                            break;
+                    }
+                }
 			}
 
 			public async Task<Stream> GetStreamAsync(Uri uri, CancellationToken cancellationToken)

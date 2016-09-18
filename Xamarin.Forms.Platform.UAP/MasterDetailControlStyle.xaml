@@ -29,7 +29,7 @@
 									<RowDefinition Height="Auto" />
 								</Grid.RowDefinitions>
 
-								<Grid x:Name="TitleBar" Background="{TemplateBinding ToolbarBackground}" HorizontalAlignment="Stretch">
+                                <Grid x:Name="TitleBar" Visibility="{TemplateBinding MasterTitleBarVisibility}" Background="{TemplateBinding ToolbarBackground}" HorizontalAlignment="Stretch">
 									<Grid.ColumnDefinitions>
 										<ColumnDefinition Width="Auto"></ColumnDefinition>
 										<ColumnDefinition Width="*"></ColumnDefinition>

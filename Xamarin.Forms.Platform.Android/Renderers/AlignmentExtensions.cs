@@ -1,4 +1,5 @@
 using Android.Views;
+using av = Android.Views;
 
 namespace Xamarin.Forms.Platform.Android
 {
@@ -29,5 +30,18 @@ namespace Xamarin.Forms.Platform.Android
 					return GravityFlags.CenterVertical;
 			}
 		}
-	}
+
+        internal static av.TextAlignment ToNativeTextAlignment(this TextAlignment alignment)
+        {
+            switch (alignment)
+            {
+                case TextAlignment.Center:
+                    return av.TextAlignment.Center;
+                case TextAlignment.End:
+                    return av.TextAlignment.TextEnd;
+                default:
+                    return av.TextAlignment.TextStart;
+            }
+        }
+    }
 }

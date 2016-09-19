@@ -71,15 +71,27 @@ namespace Xamarin.Forms.Platform.WinRT
 			else if (e.PropertyName == Picker.TitleProperty.PropertyName)
 				UpdateTitle();
 			else if (e.PropertyName == Picker.TextColorProperty.PropertyName)
-				UpdateTextColor();
-		}
+				UpdateControlProps();
+            if (e.PropertyName == Picker.HorizontalTextAlignmentProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.VerticalTextAlignmentProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.FontFamilyProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.FontSizeProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.FontAttributesProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.AdjustsFontSizeToFitWidthProperty.PropertyName)
+                UpdateControlProps();
+        }
 
-		void ControlOnLoaded(object sender, RoutedEventArgs routedEventArgs)
+        void ControlOnLoaded(object sender, RoutedEventArgs routedEventArgs)
 		{
 			// The defaults from the control template won't be available
 			// right away; we have to wait until after the template has been applied
 			_defaultBrush = Control.Foreground;
-			UpdateTextColor();
+			UpdateControlProps();
 		}
 
 		void ControlOnClosedAnimationStarted(object sender, EventArgs eventArgs)
@@ -155,13 +167,15 @@ namespace Xamarin.Forms.Platform.WinRT
 			Control.SelectedIndex = Element.SelectedIndex;
 		}
 
-		void UpdateTextColor()
+		void UpdateControlProps()
 		{
 			Color color = Element.TextColor;
 			Control.Foreground = color.IsDefault ? (_defaultBrush ?? color.ToBrush()) : color.ToBrush();
-		}
+            Control.HorizontalContentAlignment = Element.HorizontalTextAlignment.ToNativeHorizontalAlignment();
+            Control.ApplyFont(Element);
+        }
 
-		void UpdateTitle()
+        void UpdateTitle()
 		{
 			Control.Header = Element.Title;
 		}

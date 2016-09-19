@@ -68,7 +68,7 @@ namespace Xamarin.Forms
             set { _DefaultFontFamily = value; }
         }
 
-        public static float? DefaultFontSize { get; set; } = null;
+        public static Func<NamedSize, float> FontSize_Get { get; set; } = null;
 
         private static string _Resource_String_OK;
         public static string Resource_String_OK

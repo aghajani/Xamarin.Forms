@@ -9,6 +9,7 @@ using ADatePicker = Android.Widget.DatePicker;
 using ATimePicker = Android.Widget.TimePicker;
 using Object = Java.Lang.Object;
 using Orientation = Android.Widget.Orientation;
+using Android.Util;
 
 namespace Xamarin.Forms.Platform.Android
 {
@@ -57,7 +58,7 @@ namespace Xamarin.Forms.Platform.Android
 					SetNativeControl(textField);
 				}
 				UpdatePicker();
-				UpdateTextColor();
+				UpdateControlProps();
 			}
 
 			base.OnElementChanged(e);
@@ -72,10 +73,22 @@ namespace Xamarin.Forms.Platform.Android
 			if (e.PropertyName == Picker.SelectedIndexProperty.PropertyName)
 				UpdatePicker();
 			if (e.PropertyName == Picker.TextColorProperty.PropertyName)
-				UpdateTextColor();
-		}
+				UpdateControlProps();
+            if (e.PropertyName == Picker.HorizontalTextAlignmentProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.VerticalTextAlignmentProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.FontFamilyProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.FontSizeProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.FontAttributesProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.AdjustsFontSizeToFitWidthProperty.PropertyName)
+                UpdateControlProps();
+        }
 
-		internal override void OnFocusChangeRequested(object sender, VisualElement.FocusRequestArgs e)
+        internal override void OnFocusChangeRequested(object sender, VisualElement.FocusRequestArgs e)
 		{
 			base.OnFocusChangeRequested(sender, e);
 
@@ -166,12 +179,15 @@ namespace Xamarin.Forms.Platform.Android
 				((IVisualElementController)Element).NativeSizeChanged();
 		}
 
-		void UpdateTextColor()
+		void UpdateControlProps()
 		{
 			_textColorSwitcher?.UpdateTextColor(Control, Element.TextColor);
-		}
+            Control.TextAlignment = Element.HorizontalTextAlignment.ToNativeTextAlignment();
+            Control.Typeface = Element.ToTypeface();
+            Control.SetTextSize(ComplexUnitType.Sp, (float)Element.FontSize);
+        }
 
-		class PickerListener : Object, IOnClickListener
+        class PickerListener : Object, IOnClickListener
 		{
 			public static readonly PickerListener Instance = new PickerListener();
 

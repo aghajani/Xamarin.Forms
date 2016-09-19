@@ -92,7 +92,7 @@ namespace Xamarin.Forms.Platform.iOS
 
 		internal static bool IsDefault(this Span self)
 		{
-			return string.IsNullOrWhiteSpace(Application.DefaultFontFamily) && Application.DefaultFontSize == null && self.FontFamily == null && self.FontSize == Device.GetNamedSize(NamedSize.Default, typeof(Label), true) && self.FontAttributes == FontAttributes.None;
+			return string.IsNullOrWhiteSpace(Application.DefaultFontFamily) && Application.FontSize_Get == null && self.FontFamily == null && self.FontSize == Device.GetNamedSize(NamedSize.Default, typeof(Label), true) && self.FontAttributes == FontAttributes.None;
 		}
 
 		internal static UIFont ToUIFont(this Label label)

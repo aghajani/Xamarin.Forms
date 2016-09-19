@@ -67,7 +67,7 @@ namespace Xamarin.Forms.Platform.iOS
 				_picker.Model = new PickerSource(this);
 
 				UpdatePicker();
-				UpdateTextColor();
+				UpdateControlProps();
 
 				((ObservableList<string>)e.NewElement.Items).CollectionChanged += RowsCollectionChanged;
 			}
@@ -83,7 +83,7 @@ namespace Xamarin.Forms.Platform.iOS
 			if (e.PropertyName == Picker.SelectedIndexProperty.PropertyName)
 				UpdatePicker();
 			if (e.PropertyName == Picker.TextColorProperty.PropertyName || e.PropertyName == VisualElement.IsEnabledProperty.PropertyName)
-				UpdateTextColor();
+				UpdateControlProps();
 		}
 
 		void OnEnded(object sender, EventArgs eventArgs)
@@ -141,7 +141,7 @@ namespace Xamarin.Forms.Platform.iOS
 			_picker.Select(Math.Max(formsIndex, 0), 0, true);
 		}
 
-		void UpdateTextColor()
+		void UpdateControlProps()
 		{
 			var textColor = Element.TextColor;
 
@@ -149,7 +149,10 @@ namespace Xamarin.Forms.Platform.iOS
 				Control.TextColor = _defaultTextColor;
 			else
 				Control.TextColor = textColor.ToUIColor();
-		}
+            Control.AdjustsFontSizeToFitWidth = Element.AdjustsFontSizeToFitWidth;
+            Control.TextAlignment = Element.HorizontalTextAlignment.ToNativeTextAlignment();
+            Control.Font = Element.ToUIFont();
+        }
 
 		class PickerSource : UIPickerViewModel
 		{
@@ -193,6 +196,22 @@ namespace Xamarin.Forms.Platform.iOS
 				}
 				_renderer.UpdatePickerFromModel(this);
 			}
-		}
-	}
+
+            public override UIView GetView(UIPickerView pickerView, nint row, nint component, UIView view)
+            {
+                UILabel label;
+                if (view == null)
+                {
+                    label = new UILabel(new CoreGraphics.CGRect(0, 0, 300, 37));
+                    label.TextAlignment = _renderer.Element.HorizontalTextAlignment.ToNativeTextAlignment();
+                    label.Font = _renderer.Element.ToUIFont();
+                    label.AdjustsFontSizeToFitWidth = _renderer.Element.AdjustsFontSizeToFitWidth;
+                    view = label;
+                }
+                label = view as UILabel;
+                label.Text = _renderer?.Element?.Items?[(int)row];
+                return view;
+            }
+        }
+    }
 }

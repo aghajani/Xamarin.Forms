@@ -35,5 +35,18 @@ namespace Xamarin.Forms.Platform.WinRT
 					return VerticalAlignment.Top;
 			}
 		}
-	}
+
+        internal static HorizontalAlignment ToNativeHorizontalAlignment(this TextAlignment alignment)
+        {
+            switch (alignment)
+            {
+                case TextAlignment.Center:
+                    return HorizontalAlignment.Center;
+                case TextAlignment.End:
+                    return HorizontalAlignment.Right;
+                default:
+                    return HorizontalAlignment.Left;
+            }
+        }
+    }
 }

@@ -6,6 +6,8 @@ using Android.Content.Res;
 using Android.Text;
 using Android.Widget;
 using Object = Java.Lang.Object;
+using Android.Util;
+using androidR = Android.Resource;
 
 namespace Xamarin.Forms.Platform.Android.AppCompat
 {
@@ -57,7 +59,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 					SetNativeControl(textField);
 				}
 				UpdatePicker();
-				UpdateTextColor();
+				UpdateControlProps();
 			}
 
 			base.OnElementChanged(e);
@@ -72,10 +74,22 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 			if (e.PropertyName == Picker.SelectedIndexProperty.PropertyName)
 				UpdatePicker();
 			if (e.PropertyName == Picker.TextColorProperty.PropertyName)
-				UpdateTextColor();
-		}
+				UpdateControlProps();
+            if (e.PropertyName == Picker.HorizontalTextAlignmentProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.VerticalTextAlignmentProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.FontFamilyProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.FontSizeProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.FontAttributesProperty.PropertyName)
+                UpdateControlProps();
+            if (e.PropertyName == Picker.AdjustsFontSizeToFitWidthProperty.PropertyName)
+                UpdateControlProps();
+        }
 
-		internal override void OnFocusChangeRequested(object sender, VisualElement.FocusRequestArgs e)
+        internal override void OnFocusChangeRequested(object sender, VisualElement.FocusRequestArgs e)
 		{
 			base.OnFocusChangeRequested(sender, e);
 
@@ -101,13 +115,13 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 					string[] items = model.Items.ToArray();
 					builder.SetItems(items, (s, e) => ((IElementController)model).SetValueFromRenderer(Picker.SelectedIndexProperty, e.Which));
 
-					builder.SetNegativeButton(global::Android.Resource.String.Cancel, (o, args) => { });
-					
-					((IElementController)Element).SetValueFromRenderer(VisualElement.IsFocusedPropertyKey, true);
+					builder.SetNegativeButton(Xamarin.Forms.Platform.Android.Platform.Resource_String_Cancel(), (o, args) => { });
+
+                    ((IElementController)Element).SetValueFromRenderer(VisualElement.IsFocusedPropertyKey, true);
 
 					_dialog = builder.Create();
-				}
-				_dialog.SetCanceledOnTouchOutside(true);
+                }
+                _dialog.SetCanceledOnTouchOutside(true);
 				_dialog.DismissEvent += (sender, args) =>
 				{
 					((IElementController)Element).SetValueFromRenderer(VisualElement.IsFocusedPropertyKey, false);
@@ -134,12 +148,15 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 				Control.Text = Element.Items[Element.SelectedIndex];
 		}
 
-		void UpdateTextColor()
+		void UpdateControlProps()
 		{
 			_textColorSwitcher?.UpdateTextColor(Control, Element.TextColor);
-		}
+            Control.TextAlignment = Element.HorizontalTextAlignment.ToNativeTextAlignment();
+            Control.Typeface = Element.ToTypeface();
+            Control.SetTextSize(ComplexUnitType.Sp, (float)Element.FontSize);
+        }
 
-		class PickerListener : Object, IOnClickListener
+        class PickerListener : Object, IOnClickListener
 		{
 			#region Statics
 

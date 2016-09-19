@@ -58,28 +58,32 @@ namespace Xamarin.Forms.Platform.WinRT
 
 		internal static double GetFontSize(this NamedSize size)
 		{
-            float defaultFontSize = Application.DefaultFontSize ?? (float)WApplication.Current.Resources["ControlContentThemeFontSize"];
-            // These are values pulled from the mapped sizes on Windows Phone, WinRT has no equivalent sizes, only intents.
-            switch (size)
-			{
-				case NamedSize.Default:
-                    return defaultFontSize; //return (double)WApplication.Current.Resources["ControlContentThemeFontSize"];
-                case NamedSize.Micro:
-                    return defaultFontSize * (16f / 22f); //return 18.667 - 3;
-                case NamedSize.Small:
-                    return defaultFontSize * (18f / 22f); //return 18.667;
-                case NamedSize.Medium:
-                    return defaultFontSize * (22f / 22f); //return 22.667;
-                case NamedSize.Large:
-                    return defaultFontSize * (32f / 22f); //return 32;
-                default:
-					throw new ArgumentOutOfRangeException("size");
-			}
+            if (Application.FontSize_Get == null)
+            {
+                // These are values pulled from the mapped sizes on Windows Phone, WinRT has no equivalent sizes, only intents.
+                switch (size)
+                {
+                    case NamedSize.Default:
+                        return (double)WApplication.Current.Resources["ControlContentThemeFontSize"];
+                    case NamedSize.Micro:
+                        return 18.667 - 3;
+                    case NamedSize.Small:
+                        return 18.667;
+                    case NamedSize.Medium:
+                        return 22.667;
+                    case NamedSize.Large:
+                        return 32;
+                    default:
+                        throw new ArgumentOutOfRangeException("size");
+                }
+            }
+            else
+                return Application.FontSize_Get(size);
 		}
 
 		internal static bool IsDefault(this IFontElement self)
 		{
-			return string.IsNullOrWhiteSpace(Application.DefaultFontFamily) && Application.DefaultFontSize==null && self.FontFamily == null && self.FontSize == Device.GetNamedSize(NamedSize.Default, typeof(Label), true) && self.FontAttributes == FontAttributes.None;
+			return string.IsNullOrWhiteSpace(Application.DefaultFontFamily) && Application.FontSize_Get == null && self.FontFamily == null && self.FontSize == Device.GetNamedSize(NamedSize.Default, typeof(Label), true) && self.FontAttributes == FontAttributes.None;
 		}
 	}
 }

@@ -30,31 +30,43 @@ namespace Xamarin.Forms.Platform.Android
 
 		public static float ToScaledPixel(this Font self)
 		{
-            float defaultFontSize = Application.DefaultFontSize ?? 14;
-            if (self.IsDefault)
-                return defaultFontSize; //return 14;
+            if (Application.FontSize_Get == null)
+            {
+                if (self.IsDefault)
+                    return 14;
 
-			if (self.UseNamedSize)
-			{
-				switch (self.NamedSize)
-				{
-					case NamedSize.Micro:
-                        return defaultFontSize * (10f / 14f); //return 10;
+                if (self.UseNamedSize)
+                {
+                    switch (self.NamedSize)
+                    {
+                        case NamedSize.Micro:
+                            return 10;
 
-					case NamedSize.Small:
-                        return defaultFontSize * (12f / 14f); //return 12;
+                        case NamedSize.Small:
+                            return 12;
 
-					case NamedSize.Default:
-					case NamedSize.Medium:
-                        return defaultFontSize * (14f / 14f); //return 14;
+                        case NamedSize.Default:
+                        case NamedSize.Medium:
+                            return 14;
 
-					case NamedSize.Large:
-                        return defaultFontSize * (18f / 14f); //return 18;
-				}
-			}
+                        case NamedSize.Large:
+                            return 18;
+                    }
+                }
 
-			return (float)self.FontSize;
-		}
+                return (float)self.FontSize;
+            }
+            else
+            {
+                if (self.IsDefault)
+                    return Application.FontSize_Get(NamedSize.Default);
+
+                if (self.UseNamedSize)
+                    return Application.FontSize_Get(self.NamedSize);
+
+                return (float)self.FontSize;
+            }
+        }
 
 		public static Typeface ToTypeface(this Font self)
 		{
@@ -85,7 +97,7 @@ namespace Xamarin.Forms.Platform.Android
 
 		internal static bool IsDefault(this IFontElement self)
 		{
-			return string.IsNullOrWhiteSpace(Application.DefaultFontFamily) && Application.DefaultFontSize == null && self.FontFamily == null && self.FontSize == Device.GetNamedSize(NamedSize.Default, typeof(Label), true) && self.FontAttributes == FontAttributes.None;
+			return string.IsNullOrWhiteSpace(Application.DefaultFontFamily) && Application.FontSize_Get == null && self.FontFamily == null && self.FontSize == Device.GetNamedSize(NamedSize.Default, typeof(Label), true) && self.FontAttributes == FontAttributes.None;
 		}
 
 		internal static Typeface ToTypeface(this IFontElement self)

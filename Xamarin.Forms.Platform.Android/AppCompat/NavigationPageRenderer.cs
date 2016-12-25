@@ -162,7 +162,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 
 				if (_toolbar != null)
 				{
-					_toolbar.NavigationClick -= BarOnNavigationClick;
+					_toolbar.Click -= BarOnNavigationClick;
 					_toolbar.Dispose();
 					_toolbar = null;
 				}
@@ -371,7 +371,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 			valueAnim.Start();
 		}
 
-		void BarOnNavigationClick(object sender, AToolbar.NavigationClickEventArgs navigationClickEventArgs)
+		void BarOnNavigationClick(object sender, EventArgs navigationClickEventArgs)
 		{
 			Element?.PopAsync();
 		}
@@ -538,7 +538,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 		void ResetToolbar()
 		{
 			_toolbar.RemoveFromParent();
-			_toolbar.NavigationClick -= BarOnNavigationClick;
+			_toolbar.Click -= BarOnNavigationClick;
 			_toolbar = null;
 
 			SetupToolbar();
@@ -558,7 +558,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 			else
 				bar = new AToolbar(context);
 
-			bar.NavigationClick += BarOnNavigationClick;
+			bar.Click += BarOnNavigationClick;
 
 			AddView(bar);
 			_toolbar = bar;

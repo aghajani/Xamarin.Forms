@@ -13,17 +13,28 @@ namespace Xamarin.Forms.Platform.WinRT
 {
 	public sealed class FileImageSourceHandler : IImageSourceHandler
 	{
-		public Task<Windows.UI.Xaml.Media.ImageSource> LoadImageAsync(ImageSource imagesource, CancellationToken cancellationToken = new CancellationToken())
+		public async Task<Windows.UI.Xaml.Media.ImageSource> LoadImageAsync(ImageSource imagesource, CancellationToken cancellationToken = new CancellationToken())
 		{
 			Windows.UI.Xaml.Media.ImageSource image = null;
 			var filesource = imagesource as FileImageSource;
 			if (filesource != null)
 			{
 				string file = filesource.File;
-				image = new BitmapImage(new Uri("ms-appx:///" + file));
-			}
+                if (System.IO.Path.IsPathRooted(file))
+                {
+                    using (Windows.Storage.Streams.IRandomAccessStream fileStream = await (await Windows.Storage.StorageFile.GetFileFromPathAsync(file)).OpenAsync(Windows.Storage.FileAccessMode.Read))
+                    {
+                        // Set the image source to the selected bitmap.
+                        BitmapImage bitmapImage = new BitmapImage();
+                        bitmapImage.SetSource(fileStream);
+                        image = bitmapImage;
+                    }
+                }
+                else
+                    image = new BitmapImage(new Uri("ms-appx:///" + file));
+            }
 
-			return Task.FromResult(image);
+            return image;
 		}
 	}
 }

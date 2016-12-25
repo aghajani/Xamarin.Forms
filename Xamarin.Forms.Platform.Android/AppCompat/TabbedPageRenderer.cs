@@ -14,7 +14,7 @@ using Android.Views;
 
 namespace Xamarin.Forms.Platform.Android.AppCompat
 {
-	public class TabbedPageRenderer : VisualElementRenderer<TabbedPage>, TabLayout.IOnTabSelectedListener, ViewPager.IOnPageChangeListener, IManageFragments
+	public class TabbedPageRenderer : VisualElementRenderer<TabbedPage>, ViewPager.IOnPageChangeListener, IManageFragments
 	{
 		Drawable _backgroundDrawable;
 		int? _defaultColor;
@@ -66,22 +66,14 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 			Element.CurrentPage = Element.Children[position];
 		}
 
-		void TabLayout.IOnTabSelectedListener.OnTabReselected(TabLayout.Tab tab)
-		{
-		}
-
-		void TabLayout.IOnTabSelectedListener.OnTabSelected(TabLayout.Tab tab)
+		void _tabLayout_TabSelected(object sender, TabLayout.TabSelectedEventArgs e)
 		{
 			if (Element == null)
 				return;
 
-			int selectedIndex = tab.Position;
+			int selectedIndex = e.Tab.Position;
 			if (Element.Children.Count > selectedIndex && selectedIndex >= 0)
 				Element.CurrentPage = Element.Children[selectedIndex];
-		}
-
-		void TabLayout.IOnTabSelectedListener.OnTabUnselected(TabLayout.Tab tab)
-		{
 		}
 
 		protected override void Dispose(bool disposing)
@@ -110,7 +102,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 
 				if (_tabLayout != null)
 				{
-					_tabLayout.SetOnTabSelectedListener(null);
+                    _tabLayout.TabSelected -= _tabLayout_TabSelected;
 					_tabLayout.Dispose();
 					_tabLayout = null;
 				}
@@ -168,9 +160,9 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 
 					tabs.SetupWithViewPager(pager);
 					UpdateTabIcons();
-					tabs.SetOnTabSelectedListener(this);
+                    tabs.TabSelected += _tabLayout_TabSelected;
 
-					AddView(pager);
+                    AddView(pager);
 					AddView(tabs);
 				}
 
@@ -257,10 +249,10 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 			{
 				tabs.SetupWithViewPager(pager);
 				UpdateTabIcons();
-				tabs.SetOnTabSelectedListener(this);
-			}
+                tabs.TabSelected += _tabLayout_TabSelected;
+            }
 
-			UpdateIgnoreContainerAreas();
+            UpdateIgnoreContainerAreas();
 		}
 
 		void ScrollToCurrentPage()

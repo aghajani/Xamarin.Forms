@@ -1,21 +1,8 @@
 using System;
+using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Drawing;
-#if __UNIFIED__
 using UIKit;
-#else
-using MonoTouch.UIKit;
-#endif
-#if __UNIFIED__
 using RectangleF = CoreGraphics.CGRect;
-using SizeF = CoreGraphics.CGSize;
-using PointF = CoreGraphics.CGPoint;
-
-#else
-using nfloat=System.Single;
-using nint=System.Int32;
-using nuint=System.UInt32;
-#endif
 
 namespace Xamarin.Forms.Platform.iOS
 {
@@ -29,7 +16,7 @@ namespace Xamarin.Forms.Platform.iOS
 		protected override void OnElementChanged(ElementChangedEventArgs<Picker> e)
 		{
 			if (e.OldElement != null)
-				((ObservableList<string>)e.OldElement.Items).CollectionChanged -= RowsCollectionChanged;
+				((INotifyCollectionChanged)e.OldElement.Items).CollectionChanged -= RowsCollectionChanged;
 
 			if (e.NewElement != null)
 			{
@@ -37,8 +24,8 @@ namespace Xamarin.Forms.Platform.iOS
 				{
 					var entry = new NoCaretField { BorderStyle = UITextBorderStyle.RoundedRect };
 
-					entry.Started += OnStarted;
-					entry.Ended += OnEnded;
+					entry.EditingDidBegin += OnStarted;
+					entry.EditingDidEnd += OnEnded;
 
 					_picker = new UIPickerView();
 
@@ -69,7 +56,7 @@ namespace Xamarin.Forms.Platform.iOS
 				UpdatePicker();
 				UpdateControlProps();
 
-				((ObservableList<string>)e.NewElement.Items).CollectionChanged += RowsCollectionChanged;
+				((INotifyCollectionChanged)e.NewElement.Items).CollectionChanged += RowsCollectionChanged;
 			}
 
 			base.OnElementChanged(e);

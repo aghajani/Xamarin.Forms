@@ -1,27 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Drawing;
 using System.ComponentModel;
-using Xamarin.Forms.PlatformConfiguration.iOSSpecific;
-
-#if __UNIFIED__
 using UIKit;
-#else
-using MonoTouch.UIKit;
-#endif
-#if __UNIFIED__
+using Xamarin.Forms.PlatformConfiguration.iOSSpecific;
 using RectangleF = CoreGraphics.CGRect;
 using SizeF = CoreGraphics.CGSize;
-using PointF = CoreGraphics.CGPoint;
-using CoreGraphics;
 
-#else
-using nfloat=System.Single;
-using nint=System.Int32;
-using nuint=System.UInt32;
-#endif
 
 namespace Xamarin.Forms.Platform.iOS
 {
@@ -186,17 +170,16 @@ namespace Xamarin.Forms.Platform.iOS
 			return new SizeF(0, 0);
 		}
 
-		public override void Draw(RectangleF rect)
+		public override void LayoutSubviews()
 		{
-			base.Draw(rect);
-			if (_blur != null)
+			base.LayoutSubviews();
+			if (_blur != null && Superview != null)
 			{
-				_blur.Frame = rect;
+				_blur.Frame = Bounds;
 				if (_blur.Superview == null)
 					Superview.Add(_blur);
 			}
 		}
-
 		protected override void Dispose(bool disposing)
 		{
 			if ((_flags & VisualElementRendererFlags.Disposed) != 0)
@@ -305,7 +288,7 @@ namespace Xamarin.Forms.Platform.iOS
 			}
 
 			_blur = new UIVisualEffectView(blurEffect);
-			SetNeedsDisplay();
+			LayoutSubviews();
 		}
 
 		protected virtual void UpdateNativeWidget()

@@ -10,6 +10,7 @@ using ATimePicker = Android.Widget.TimePicker;
 using Object = Java.Lang.Object;
 using Orientation = Android.Widget.Orientation;
 using Android.Util;
+using System.Collections.Specialized;
 
 namespace Xamarin.Forms.Platform.Android
 {
@@ -31,7 +32,7 @@ namespace Xamarin.Forms.Platform.Android
 			if (disposing && !_isDisposed)
 			{
 				_isDisposed = true;
-				((ObservableList<string>)Element.Items).CollectionChanged -= RowsCollectionChanged;
+				((INotifyCollectionChanged)Element.Items).CollectionChanged -= RowsCollectionChanged;
 			}
 
 			base.Dispose(disposing);
@@ -45,11 +46,11 @@ namespace Xamarin.Forms.Platform.Android
 		protected override void OnElementChanged(ElementChangedEventArgs<Picker> e)
 		{
 			if (e.OldElement != null)
-				((ObservableList<string>)e.OldElement.Items).CollectionChanged -= RowsCollectionChanged;
+				((INotifyCollectionChanged)e.OldElement.Items).CollectionChanged -= RowsCollectionChanged;
 
 			if (e.NewElement != null)
 			{
-				((ObservableList<string>)e.NewElement.Items).CollectionChanged += RowsCollectionChanged;
+				((INotifyCollectionChanged)e.NewElement.Items).CollectionChanged += RowsCollectionChanged;
 				if (Control == null)
 				{
 					var textField = CreateNativeControl();

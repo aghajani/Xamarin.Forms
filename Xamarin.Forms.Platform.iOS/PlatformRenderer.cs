@@ -1,10 +1,5 @@
-using System;
-#if __UNIFIED__
 using UIKit;
-
-#else
-using MonoTouch.UIKit;
-#endif
+using Xamarin.Forms.PlatformConfiguration.iOSSpecific;
 
 namespace Xamarin.Forms.Platform.iOS
 {
@@ -108,6 +103,11 @@ namespace Xamarin.Forms.Platform.iOS
 				return ChildViewControllers[0].PreferredInterfaceOrientationForPresentation();
 			}
 			return base.PreferredInterfaceOrientationForPresentation();
+		}
+		
+		public override UIViewController ChildViewControllerForStatusBarHidden()
+		{
+			return (UIViewController)Platform.GetRenderer(this.Platform.Page);
 		}
 
 		public override bool ShouldAutorotate()

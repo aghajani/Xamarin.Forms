@@ -11,16 +11,10 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Xamarin.Forms.Internals;
-#if __UNIFIED__
-using UIKit;
 using CoreFoundation;
 using Foundation;
-#else
-using MonoTouch.UIKit;
-using MonoTouch.CoreFoundation;
-using MonoTouch.Foundation;
-#endif
+using UIKit;
+using Xamarin.Forms.Internals;
 using Xamarin.Forms.Platform.iOS;
 
 namespace Xamarin.Forms
@@ -29,10 +23,6 @@ namespace Xamarin.Forms
 	{
 		//Preserve GetCallingAssembly
 		static readonly bool nevertrue = false;
-
-		static bool? s_isiOS7OrNewer;
-
-		static bool? s_isiOS8OrNewer;
 
 		static bool? s_isiOS9OrNewer;
 
@@ -43,26 +33,6 @@ namespace Xamarin.Forms
 		}
 
 		public static bool IsInitialized { get; private set; }
-
-		internal static bool IsiOS7OrNewer
-		{
-			get
-			{
-				if (!s_isiOS7OrNewer.HasValue)
-					s_isiOS7OrNewer = UIDevice.CurrentDevice.CheckSystemVersion(7, 0);
-				return s_isiOS7OrNewer.Value;
-			}
-		}
-
-		internal static bool IsiOS8OrNewer
-		{
-			get
-			{
-				if (!s_isiOS8OrNewer.HasValue)
-					s_isiOS8OrNewer = UIDevice.CurrentDevice.CheckSystemVersion(8, 0);
-				return s_isiOS8OrNewer.Value;
-			}
-		}
 
 		internal static bool IsiOS9OrNewer
 		{
@@ -246,18 +216,10 @@ namespace Xamarin.Forms
 			public void StartTimer(TimeSpan interval, Func<bool> callback)
 			{
 				NSTimer timer = null;
-#if __UNIFIED__
 				timer = NSTimer.CreateRepeatingScheduledTimer(interval, t =>
 				{
-#else
-				timer = NSTimer.CreateRepeatingScheduledTimer (interval, () => {
-				#endif
 					if (!callback())
-#if __UNIFIED__
 						t.Invalidate();
-#else
-						timer.Invalidate ();
-						#endif
 				});
 				NSRunLoop.Main.AddTimer(timer, NSRunLoopMode.Common);
 			}

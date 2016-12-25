@@ -1,22 +1,10 @@
 using System;
-using System.Linq;
 using System.ComponentModel;
 using System.Diagnostics;
-
-#if __UNIFIED__
+using System.Linq;
 using Foundation;
 using UIKit;
-using RectangleF = CoreGraphics.CGRect;
 using SizeF = CoreGraphics.CGSize;
-using PointF = CoreGraphics.CGPoint;
-#else
-using System.Drawing;
-using MonoTouch.UIKit;
-using MonoTouch.Foundation;
-using nfloat=System.Single;
-using nint=System.Int32;
-using nuint=System.UInt32;
-#endif
 
 namespace Xamarin.Forms.Platform.iOS
 {
@@ -94,8 +82,6 @@ namespace Xamarin.Forms.Platform.iOS
 				UpdateFont();
 			else if (e.PropertyName == Button.BorderWidthProperty.PropertyName || e.PropertyName == Button.BorderRadiusProperty.PropertyName || e.PropertyName == Button.BorderColorProperty.PropertyName)
 				UpdateBorder();
-			else if (e.PropertyName == VisualElement.BackgroundColorProperty.PropertyName)
-				UpdateBackgroundVisibility();
 			else if (e.PropertyName == Button.ImageProperty.PropertyName)
 				UpdateImage();
 		}
@@ -103,18 +89,6 @@ namespace Xamarin.Forms.Platform.iOS
 		void OnButtonTouchUpInside(object sender, EventArgs eventArgs)
 		{
 			((IButtonController)Element)?.SendClicked();
-		}
-
-		void UpdateBackgroundVisibility()
-		{
-			if (Forms.IsiOS7OrNewer)
-				return;
-
-			var model = Element;
-			var shouldDrawImage = model.BackgroundColor == Color.Default;
-
-			foreach (var control in Control.Subviews.Where(sv => !(sv is UILabel)))
-				control.Alpha = shouldDrawImage ? 1.0f : 0.0f;
 		}
 
 		void UpdateBorder()
@@ -125,10 +99,8 @@ namespace Xamarin.Forms.Platform.iOS
 			if (button.BorderColor != Color.Default)
 				uiButton.Layer.BorderColor = button.BorderColor.ToCGColor();
 
-			uiButton.Layer.BorderWidth = (float)button.BorderWidth;
+			uiButton.Layer.BorderWidth = Math.Max(0f, (float)button.BorderWidth);
 			uiButton.Layer.CornerRadius = button.BorderRadius;
-
-			UpdateBackgroundVisibility();
 		}
 
 		void UpdateFont()
@@ -154,10 +126,7 @@ namespace Xamarin.Forms.Platform.iOS
 				UIButton button = Control;
 				if (button != null && uiimage != null)
 				{
-					if (Forms.IsiOS7OrNewer)
-						button.SetImage(uiimage.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal), UIControlState.Normal);
-					else
-						button.SetImage(uiimage, UIControlState.Normal);
+					button.SetImage(uiimage.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal), UIControlState.Normal);
 
 					button.ImageView.ContentMode = UIViewContentMode.ScaleAspectFit;
 
@@ -196,9 +165,8 @@ namespace Xamarin.Forms.Platform.iOS
 				Control.SetTitleColor(Element.TextColor.ToUIColor(), UIControlState.Normal);
 				Control.SetTitleColor(Element.TextColor.ToUIColor(), UIControlState.Highlighted);
 				Control.SetTitleColor(_buttonTextColorDefaultDisabled, UIControlState.Disabled);
-
-				if (Forms.IsiOS7OrNewer)
-					Control.TintColor = Element.TextColor.ToUIColor();
+				
+				Control.TintColor = Element.TextColor.ToUIColor();
 			}
 		}
 

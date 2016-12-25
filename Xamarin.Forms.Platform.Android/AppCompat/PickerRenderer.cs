@@ -8,6 +8,7 @@ using Android.Widget;
 using Object = Java.Lang.Object;
 using Android.Util;
 using androidR = Android.Resource;
+using System.Collections.Specialized;
 
 namespace Xamarin.Forms.Platform.Android.AppCompat
 {
@@ -33,7 +34,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 			{
 				_disposed = true;
 
-				((ObservableList<string>)Element.Items).CollectionChanged -= RowsCollectionChanged;
+				((INotifyCollectionChanged)Element.Items).CollectionChanged -= RowsCollectionChanged;
 			}
 
 			base.Dispose(disposing);
@@ -42,11 +43,11 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 		protected override void OnElementChanged(ElementChangedEventArgs<Picker> e)
 		{
 			if (e.OldElement != null)
-				((ObservableList<string>)e.OldElement.Items).CollectionChanged -= RowsCollectionChanged;
+				((INotifyCollectionChanged)e.OldElement.Items).CollectionChanged -= RowsCollectionChanged;
 
 			if (e.NewElement != null)
 			{
-				((ObservableList<string>)e.NewElement.Items).CollectionChanged += RowsCollectionChanged;
+				((INotifyCollectionChanged)e.NewElement.Items).CollectionChanged += RowsCollectionChanged;
 				if (Control == null)
 				{
 					EditText textField = CreateNativeControl();

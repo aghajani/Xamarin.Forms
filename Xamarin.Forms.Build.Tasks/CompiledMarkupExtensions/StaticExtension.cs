@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Xamarin.Forms.Xaml;
@@ -11,11 +10,11 @@ namespace Xamarin.Forms.Build.Tasks
 {
 	class StaticExtension : ICompiledMarkupExtension
 	{
-		public IEnumerable<Instruction> ProvideValue(IElementNode node, ModuleDefinition module, out TypeReference memberRef)
+		public IEnumerable<Instruction> ProvideValue(IElementNode node, ModuleDefinition module, ILContext context, out TypeReference memberRef)
 		{
 			INode ntype;
 			if (!node.Properties.TryGetValue(new XmlName("", "Member"), out ntype))
-				ntype = node.CollectionItems [0];
+				ntype = node.CollectionItems[0];
 			var member = ((ValueNode)ntype).Value as string;
 
 			if (IsNullOrEmpty(member) || !member.Contains(".")) {
@@ -27,21 +26,57 @@ namespace Xamarin.Forms.Build.Tasks
 			var typename = member.Substring(0, dotIdx);
 			var membername = member.Substring(dotIdx + 1);
 
-			var typeRef = GetTypeReference(typename, module, node);
+			var typeRef = module.Import(GetTypeReference(typename, module, node));
 			var fieldRef = GetFieldReference(typeRef, membername, module);
 			var propertyDef = GetPropertyDefinition(typeRef, membername, module);
 
 			if (fieldRef == null && propertyDef == null)
-				throw new XamlParseException(Format("x:Static: unable to find a public static field or property named {0} in {1}", membername, typename), node as IXmlLineInfo);
+				throw new XamlParseException($"x:Static: unable to find a public static field, static property, const or enum value named {membername} in {typename}", node as IXmlLineInfo);
 
+			var fieldDef = fieldRef?.Resolve();
 			if (fieldRef != null) {
 				memberRef = fieldRef.FieldType;
-				return new [] { Instruction.Create(OpCodes.Ldsfld, fieldRef) };
+				if (!fieldDef.HasConstant)
+					return new [] { Instruction.Create(OpCodes.Ldsfld, fieldRef) };
+
+				//Constants can be numbers, Boolean values, strings, or a null reference. (https://msdn.microsoft.com/en-us/library/e6w8fe1b.aspx)
+				if (memberRef == module.TypeSystem.Boolean)
+					return new [] { Instruction.Create(((bool)fieldDef.Constant) ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0) };
+				if (memberRef == module.TypeSystem.String)
+					return new [] { Instruction.Create(OpCodes.Ldstr, (string)fieldDef.Constant) };
+				if (fieldDef.Constant == null)
+					return new [] { Instruction.Create(OpCodes.Ldnull) };
+				if (memberRef == module.TypeSystem.Char)
+					return new [] { Instruction.Create(OpCodes.Ldc_I4, (char)fieldDef.Constant) };
+				if (memberRef == module.TypeSystem.Single)
+					return new [] { Instruction.Create(OpCodes.Ldc_R4, (float)fieldDef.Constant) };
+				if (memberRef == module.TypeSystem.Double)
+					return new [] { Instruction.Create(OpCodes.Ldc_R8, (double)fieldDef.Constant) };
+				if (memberRef == module.TypeSystem.Byte || memberRef == module.TypeSystem.Int16 || memberRef == module.TypeSystem.Int32)
+					return new [] { Instruction.Create(OpCodes.Ldc_I4, (int)fieldDef.Constant) };
+				if (memberRef == module.TypeSystem.SByte || memberRef == module.TypeSystem.UInt16 || memberRef == module.TypeSystem.UInt32)
+					return new [] { Instruction.Create(OpCodes.Ldc_I4, (uint)fieldDef.Constant) };
+				if (memberRef == module.TypeSystem.Int64)
+					return new [] { Instruction.Create(OpCodes.Ldc_I8, (long)fieldDef.Constant) };
+				if (memberRef == module.TypeSystem.UInt64)
+					return new [] { Instruction.Create(OpCodes.Ldc_I8, (ulong)fieldDef.Constant) };
+
+				//enum values
+				if (memberRef.Resolve().IsEnum) {
+					if (fieldDef.Constant is long)
+						return new [] { Instruction.Create(OpCodes.Ldc_I8, (long)fieldDef.Constant) };
+					if (fieldDef.Constant is ulong)
+						return new [] { Instruction.Create(OpCodes.Ldc_I8, (ulong)fieldDef.Constant) };
+					if (fieldDef.Constant is uint)
+						return new [] { Instruction.Create(OpCodes.Ldc_I4, (uint)fieldDef.Constant) };
+					//everything else will cast just fine to an int
+					return new [] { Instruction.Create(OpCodes.Ldc_I4, (int)fieldDef.Constant) };
+				}
 			}
 
 			memberRef = propertyDef.PropertyType;
-			var getterDef = propertyDef.GetMethod;
-			return new [] { Instruction.Create(OpCodes.Call, getterDef)};
+			var getterDef = module.Import(propertyDef.GetMethod);
+			return new [] { Instruction.Create(OpCodes.Call, getterDef) };
 		}
 
 
@@ -49,7 +84,7 @@ namespace Xamarin.Forms.Build.Tasks
 		{
 			var split = xmlType.Split(':');
 			if (split.Length > 2)
-				throw new Xaml.XamlParseException(string.Format("Type \"{0}\" is invalid", xmlType), node as IXmlLineInfo);
+				throw new XamlParseException($"Type \"{xmlType}\" is invalid", node as IXmlLineInfo);
 
 			string prefix, name;
 			if (split.Length == 2) {

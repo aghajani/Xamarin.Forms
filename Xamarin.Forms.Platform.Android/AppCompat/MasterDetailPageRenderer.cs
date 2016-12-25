@@ -116,7 +116,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 				{
 					_detailLayout = new MasterDetailContainer(newElement, false, Context)
 					{
-						TopPadding = statusBarHeight,
+						TopPadding = HasAncestorNavigationPage(Element) ? 0 : statusBarHeight,
 						LayoutParameters = new LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent)
 					};
 
@@ -188,17 +188,21 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 
 				if (_detailLayout != null)
 				{
+					RemoveView(_detailLayout);
 					_detailLayout.Dispose();
 					_detailLayout = null;
 				}
 
 				if (_masterLayout != null)
 				{
+					RemoveView(_masterLayout);
 					_masterLayout.Dispose();
 					_masterLayout = null;
 				}
 
 				Device.Info.PropertyChanged -= DeviceInfoPropertyChanged;
+
+				RemoveDrawerListener(this);
 
 				if (Element != null)
 				{
@@ -206,6 +210,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 					Element.PropertyChanged -= HandlePropertyChanged;
 					Element.Appearing -= MasterDetailPageAppearing;
 					Element.Disappearing -= MasterDetailPageDisappearing;
+
 					Element.ClearValue(Android.Platform.RendererProperty);
 					Element = null;
 				}
@@ -257,6 +262,16 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 		}
 
 		event EventHandler<VisualElementChangedEventArgs> ElementChanged;
+
+		bool HasAncestorNavigationPage(Element element)
+		{
+			if (element.Parent == null)
+				return false;
+			else if (element.Parent is NavigationPage)
+				return true;
+			else
+				return HasAncestorNavigationPage(element.Parent);
+		}
 
 		void HandleMasterPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{

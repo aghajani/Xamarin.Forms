@@ -2,33 +2,23 @@ using System;
 
 namespace Xamarin.Forms.Xaml
 {
-	internal static class XmlnsHelper
+	static class XmlnsHelper
 	{
-		public static bool IsCustom(string ns)
-		{
-			switch (ns)
-			{
-				case "":
-				case "http://xamarin.com/schemas/2014/forms":
-					return false;
-			}
-			return true;
-		}
-
 		public static string ParseNamespaceFromXmlns(string xmlns)
 		{
 			string typeName;
 			string ns;
 			string asm;
+			string targetPlatform;
 
-			ParseXmlns(xmlns, out typeName, out ns, out asm);
+			ParseXmlns(xmlns, out typeName, out ns, out asm, out targetPlatform);
 
 			return ns;
 		}
 
-		public static void ParseXmlns(string xmlns, out string typeName, out string ns, out string asm)
+		public static void ParseXmlns(string xmlns, out string typeName, out string ns, out string asm, out string targetPlatform)
 		{
-			typeName = ns = asm = null;
+			typeName = ns = asm = targetPlatform = null;
 
 			foreach (var decl in xmlns.Split(';'))
 			{
@@ -40,6 +30,10 @@ namespace Xamarin.Forms.Xaml
 				if (decl.StartsWith("assembly=", StringComparison.Ordinal))
 				{
 					asm = decl.Substring(9, decl.Length - 9);
+					continue;
+				}
+				if (decl.StartsWith("targetPlatform=", StringComparison.Ordinal)) {
+					targetPlatform = decl.Substring(15, decl.Length - 15);
 					continue;
 				}
 				var nsind = decl.LastIndexOf(".", StringComparison.Ordinal);

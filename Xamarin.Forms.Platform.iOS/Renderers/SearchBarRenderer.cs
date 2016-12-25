@@ -1,12 +1,7 @@
 using System;
-using System.Drawing;
 using System.ComponentModel;
-#if __UNIFIED__
+using System.Drawing;
 using UIKit;
-
-#else
-using MonoTouch.UIKit;
-#endif
 
 namespace Xamarin.Forms.Platform.iOS
 {
@@ -112,16 +107,10 @@ namespace Xamarin.Forms.Platform.iOS
 
 			if (_defaultTintColor == null)
 			{
-				if (Forms.IsiOS7OrNewer)
-					_defaultTintColor = Control.BarTintColor;
-				else
-					_defaultTintColor = Control.TintColor;
+				_defaultTintColor = Control.BarTintColor;
 			}
-
-			if (Forms.IsiOS7OrNewer)
-				Control.BarTintColor = color.ToUIColor(_defaultTintColor);
-			else
-				Control.TintColor = color.ToUIColor(_defaultTintColor);
+			
+			Control.BarTintColor = color.ToUIColor(_defaultTintColor);
 
 			if (color.A < 1)
 				Control.SetBackgroundImage(new UIImage(), UIBarPosition.Any, UIBarMetrics.Default);

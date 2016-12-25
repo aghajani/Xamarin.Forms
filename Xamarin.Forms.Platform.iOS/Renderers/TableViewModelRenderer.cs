@@ -1,24 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Xamarin.Forms;
-using Xamarin.Forms.Internals;
-#if __UNIFIED__
-using UIKit;
 using Foundation;
-#else
-using MonoTouch.UIKit;
-using MonoTouch.Foundation;
-#endif
-#if __UNIFIED__
-using RectangleF = CoreGraphics.CGRect;
-using SizeF = CoreGraphics.CGSize;
-using PointF = CoreGraphics.CGPoint;
-
-#else
-using nfloat=System.Single;
-using nint=System.Int32;
-using nuint=System.UInt32;
-#endif
+using UIKit;
 
 namespace Xamarin.Forms.Platform.iOS
 {
@@ -154,7 +137,7 @@ namespace Xamarin.Forms.Platform.iOS
 			var cell = View.Model.GetCell(indexPath.Section, indexPath.Row);
 			var h = cell.Height;
 
-			if (View.RowHeight == -1 && h == -1 && cell is ViewCell && Forms.IsiOS8OrNewer) {
+			if (View.RowHeight == -1 && h == -1 && cell is ViewCell) {
 				return UITableView.AutomaticDimension;
 			} else if (h == -1)
 				return tableView.RowHeight;

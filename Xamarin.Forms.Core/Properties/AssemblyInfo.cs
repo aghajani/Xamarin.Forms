@@ -28,6 +28,7 @@ using Xamarin.Forms.Internals;
 [assembly: InternalsVisibleTo("Xamarin.Forms.Platform.WinRT.Tablet")]
 [assembly: InternalsVisibleTo("Xamarin.Forms.Platform.WinRT.Phone")]
 [assembly: InternalsVisibleTo("Xamarin.Forms.Platform.WP8")]
+[assembly: InternalsVisibleTo("Xamarin.Forms.Platform.MacOS")]
 [assembly: InternalsVisibleTo("iOSUnitTests")]
 [assembly: InternalsVisibleTo("Xamarin.Forms.Controls")]
 [assembly: InternalsVisibleTo("Xamarin.Forms.Core.Design")]
@@ -56,3 +57,5 @@ using Xamarin.Forms.Internals;
 [assembly: InternalsVisibleTo("Xamarin.Forms.Pages.UnitTests")]
 [assembly: InternalsVisibleTo("Xamarin.Forms.CarouselView")]
 [assembly: Preserve]
+
+[assembly: XmlnsDefinition("http://xamarin.com/schemas/2014/forms", "Xamarin.Forms")]

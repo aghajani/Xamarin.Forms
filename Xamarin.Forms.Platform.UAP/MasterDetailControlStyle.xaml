@@ -29,14 +29,7 @@
 									<RowDefinition Height="Auto" />
 								</Grid.RowDefinitions>
 
-                                <Grid x:Name="TitleBar" Visibility="{TemplateBinding MasterTitleBarVisibility}" Background="{TemplateBinding ToolbarBackground}" HorizontalAlignment="Stretch">
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="Auto"></ColumnDefinition>
-										<ColumnDefinition Width="*"></ColumnDefinition>
-									</Grid.ColumnDefinitions>
-
-									<StackPanel Orientation="Horizontal" VerticalAlignment="Center" Background="{TemplateBinding ToolbarBackground}" >
-                                <Border x:Name="TopCommandBarArea" HorizontalAlignment="Stretch" Background="{TemplateBinding ToolbarBackground}">
+                                <Border x:Name="TopCommandBarArea" HorizontalAlignment="Stretch" Background="{TemplateBinding ToolbarBackground}" Visibility="{TemplateBinding MasterTitleBarVisibility}">
                                     <uwp:FormsCommandBar x:Name="CommandBar" Background="{TemplateBinding ToolbarBackground}" MinHeight="{ThemeResource TitleBarHeight}">
                                         <uwp:FormsCommandBar.Content>
                                             <Border x:Name="TitleArea" Height="{ThemeResource TitleBarHeight}">
@@ -57,8 +50,8 @@
 
                                 <ContentPresenter x:Name="DetailPresenter" Grid.Row="1" Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Detail}" />
 
-								<Border x:Name="BottomCommandBarArea" Grid.Row="2" HorizontalAlignment="Stretch"></Border>
-							</Grid>
+                                <Border x:Name="BottomCommandBarArea" Grid.Row="2" HorizontalAlignment="Stretch"></Border>
+                            </Grid>
 						</SplitView.Content>
 					</SplitView>
 				</ControlTemplate>

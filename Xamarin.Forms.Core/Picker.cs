@@ -29,7 +29,15 @@ namespace Xamarin.Forms
         public static readonly BindableProperty VerticalTextAlignmentProperty = BindableProperty.Create("VerticalTextAlignment", typeof(TextAlignment), typeof(Picker), TextAlignment.Start);
 
         public static readonly BindableProperty AdjustsFontSizeToFitWidthProperty = BindableProperty.Create("AdjustsFontSizeToFitWidth", typeof(bool), typeof(Picker), false);
-        
+
+        public static readonly BindableProperty ItemsSourceProperty =
+            BindableProperty.Create(nameof(ItemsSource), typeof(IList), typeof(Picker), default(IList),
+                                    propertyChanged: OnItemsSourceChanged);
+
+        public static readonly BindableProperty SelectedItemProperty =
+            BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(Picker), null, BindingMode.TwoWay,
+                                    propertyChanged: OnSelectedItemChanged);
+
         readonly Lazy<PlatformConfigurationRegistry<Picker>> _platformConfigurationRegistry;
 
 		public Picker()
@@ -120,8 +128,6 @@ namespace Xamarin.Forms
 				OnPropertyChanged();
 			}
 		}
-
-		public event EventHandler SelectedIndexChanged;
 
 		static readonly BindableProperty s_displayProperty =
 			BindableProperty.Create("Display", typeof(string), typeof(Picker), default(string));

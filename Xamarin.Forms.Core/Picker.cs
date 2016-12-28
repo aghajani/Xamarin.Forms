@@ -201,35 +201,44 @@ namespace Xamarin.Forms
 		void AddItems(NotifyCollectionChangedEventArgs e)
 		{
 			int index = e.NewStartingIndex < 0 ? Items.Count : e.NewStartingIndex;
-			foreach (object newItem in e.NewItems)
-				((LockableObservableListWrapper)Items).Insert(index++, GetDisplayMember(newItem));
+            ((LockableObservableListWrapper)Items).RunInternal(() =>
+            {
+                foreach (object newItem in e.NewItems)
+                    ((LockableObservableListWrapper)Items).Insert(index++, GetDisplayMember(newItem));
+            });
 		}
 
 		void RemoveItems(NotifyCollectionChangedEventArgs e)
 		{
 			int index = e.OldStartingIndex < Items.Count ? e.OldStartingIndex : Items.Count;
-			foreach (object _ in e.OldItems)
-				((LockableObservableListWrapper)Items).RemoveAt(index--);
+            ((LockableObservableListWrapper)Items).RunInternal(() =>
+            {
+                foreach (object _ in e.OldItems)
+                    ((LockableObservableListWrapper)Items).RemoveAt(index--);
+            });
 		}
 
 		void ResetItems()
 		{
 			if (ItemsSource == null)
 				return;
-			((LockableObservableListWrapper)Items).Clear();
-			foreach (object item in ItemsSource)
-				((LockableObservableListWrapper)Items).Add(GetDisplayMember(item));
-			UpdateSelectedItem();
+            ((LockableObservableListWrapper)Items).RunInternal(() =>
+            {
+                ((LockableObservableListWrapper)Items).Clear();
+                foreach (object item in ItemsSource)
+                    ((LockableObservableListWrapper)Items).Add(GetDisplayMember(item));
+                UpdateSelectedItem();
+            });
 		}
 
 		static void OnSelectedIndexChanged(object bindable, object oldValue, object newValue)
 		{
 			var picker = (Picker)bindable;
-			picker.SelectedIndexChanged?.Invoke(bindable, EventArgs.Empty);
 			picker.UpdateSelectedItem();
-		}
+            picker.SelectedIndexChanged?.Invoke(bindable, EventArgs.Empty);
+        }
 
-		static void OnSelectedItemChanged(BindableObject bindable, object oldValue, object newValue)
+        static void OnSelectedItemChanged(BindableObject bindable, object oldValue, object newValue)
 		{
 			var picker = (Picker)bindable;
 			picker.UpdateSelectedIndex(newValue);
@@ -266,16 +275,26 @@ namespace Xamarin.Forms
 
         class LockableObservableListWrapper : ObservableList<string>
         {
-            readonly ObservableList<string> _list = new ObservableList<string>();
-
 			public bool IsLocked { get; set; }
 
 			void ThrowOnLocked()
 			{
-				if (IsLocked)
-					throw new InvalidOperationException("The Items list can not be manipulated if the ItemsSource property is set");
-			
+				if (!IsInternal && IsLocked)
+					throw new InvalidOperationException("The Items list can not be manipulated if the ItemsSource property is set");			
 			}
+
+            private bool IsInternal = false;
+
+            private object _RunInternalLock = new object();
+            internal void RunInternal(Action toRun)
+            {
+                lock (_RunInternalLock)
+                {
+                    IsInternal = true;
+                    toRun();
+                    IsInternal = false;
+                }
+            }
 
             protected override void ClearItems()
             {
@@ -306,100 +325,6 @@ namespace Xamarin.Forms
                 ThrowOnLocked();
                 base.RemoveItem(index);
             }
-   //         public string this [int index] {
-			//	get { return _list [index]; }
-			//	set {
-			//		ThrowOnLocked();
-			//		_list [index] = value; }
-			//}
-
-			//public int Count {
-			//	get { return _list.Count; }
-			//}
-
-			//public bool IsReadOnly {
-			//	get { return ((IList<string>)_list).IsReadOnly; }
-			//}
-
-			//public void InternalAdd(string item)
-			//{
-			//	_list.Add(item);
-			//}
-
-			//public void Add(string item)
-			//{
-			//	ThrowOnLocked();
-			//	InternalAdd(item);
-			//}
-
-			//public void InternalClear()
-			//{ 
-			//	_list.Clear();
-			//}
-
-			//public void Clear()
-			//{
-			//	ThrowOnLocked();
-			//	InternalClear();
-			//}
-
-			//public bool Contains(string item)
-			//{
-			//	return _list.Contains(item);
-			//}
-
-			//public void CopyTo(string [] array, int arrayIndex)
-			//{
-			//	_list.CopyTo(array, arrayIndex);
-			//}
-
-			//public IEnumerator<string> GetEnumerator()
-			//{
-			//	return _list.GetEnumerator();
-			//}
-
-			//public int IndexOf(string item)
-			//{
-			//	return _list.IndexOf(item);
-			//}
-
-			//public void InternalInsert(int index, string item)
-			//{
-			//	_list.Insert(index, item);
-			//}
-
-			//public void Insert(int index, string item)
-			//{
-			//	ThrowOnLocked();
-			//	InternalInsert(index, item);
-			//}
-
-			//public bool InternalRemove(string item)
-			//{
-			//	return _list.Remove(item);
-			//}
-
-			//public bool Remove(string item)
-			//{
-			//	ThrowOnLocked();
-			//	return InternalRemove(item);
-			//}
-
-			//public void InternalRemoveAt(int index)
-			//{
-			//	_list.RemoveAt(index);
-			//}
-
-			//public void RemoveAt(int index)
-			//{
-			//	ThrowOnLocked();
-			//	InternalRemoveAt(index);
-			//}
-
-			//IEnumerator IEnumerable.GetEnumerator()
-			//{
-			//	return ((IEnumerable)_list).GetEnumerator();
-			//}
 		}
 	}
 }

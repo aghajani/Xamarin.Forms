@@ -179,7 +179,7 @@ namespace Xamarin.Forms
 				((LockableObservableListWrapper)Items).IsLocked = true;
 				ResetItems();
 			} else {
-				((LockableObservableListWrapper)Items).InternalClear();
+				((LockableObservableListWrapper)Items).Clear();
 				((LockableObservableListWrapper)Items).IsLocked = false;
 			}
 		}
@@ -202,23 +202,23 @@ namespace Xamarin.Forms
 		{
 			int index = e.NewStartingIndex < 0 ? Items.Count : e.NewStartingIndex;
 			foreach (object newItem in e.NewItems)
-				((LockableObservableListWrapper)Items).InternalInsert(index++, GetDisplayMember(newItem));
+				((LockableObservableListWrapper)Items).Insert(index++, GetDisplayMember(newItem));
 		}
 
 		void RemoveItems(NotifyCollectionChangedEventArgs e)
 		{
 			int index = e.OldStartingIndex < Items.Count ? e.OldStartingIndex : Items.Count;
 			foreach (object _ in e.OldItems)
-				((LockableObservableListWrapper)Items).InternalRemoveAt(index--);
+				((LockableObservableListWrapper)Items).RemoveAt(index--);
 		}
 
 		void ResetItems()
 		{
 			if (ItemsSource == null)
 				return;
-			((LockableObservableListWrapper)Items).InternalClear();
+			((LockableObservableListWrapper)Items).Clear();
 			foreach (object item in ItemsSource)
-				((LockableObservableListWrapper)Items).InternalAdd(GetDisplayMember(item));
+				((LockableObservableListWrapper)Items).Add(GetDisplayMember(item));
 			UpdateSelectedItem();
 		}
 
@@ -264,16 +264,11 @@ namespace Xamarin.Forms
 			return _platformConfigurationRegistry.Value.On<T>();
 		}
 
-		class LockableObservableListWrapper : INotifyCollectionChanged, IList<string>
-		{
-			readonly ObservableList<string> _list = new ObservableList<string>();
+        class LockableObservableListWrapper : ObservableList<string>
+        {
+            readonly ObservableList<string> _list = new ObservableList<string>();
 
 			public bool IsLocked { get; set; }
-
-			event NotifyCollectionChangedEventHandler INotifyCollectionChanged.CollectionChanged {
-				add { _list.CollectionChanged += value; }
-				remove { _list.CollectionChanged -= value; }
-			}
 
 			void ThrowOnLocked()
 			{
@@ -281,100 +276,130 @@ namespace Xamarin.Forms
 					throw new InvalidOperationException("The Items list can not be manipulated if the ItemsSource property is set");
 			
 			}
-			public string this [int index] {
-				get { return _list [index]; }
-				set {
-					ThrowOnLocked();
-					_list [index] = value; }
-			}
 
-			public int Count {
-				get { return _list.Count; }
-			}
+            protected override void ClearItems()
+            {
+                ThrowOnLocked();
+                base.ClearItems();
+            }
 
-			public bool IsReadOnly {
-				get { return ((IList<string>)_list).IsReadOnly; }
-			}
+            protected override void SetItem(int index, string item)
+            {
+                ThrowOnLocked();
+                base.SetItem(index, item);
+            }
 
-			public void InternalAdd(string item)
-			{
-				_list.Add(item);
-			}
+            protected override void InsertItem(int index, string item)
+            {
+                ThrowOnLocked();
+                base.InsertItem(index, item);
+            }
 
-			public void Add(string item)
-			{
-				ThrowOnLocked();
-				InternalAdd(item);
-			}
+            protected override void MoveItem(int oldIndex, int newIndex)
+            {
+                ThrowOnLocked();
+                base.MoveItem(oldIndex, newIndex);
+            }
 
-			public void InternalClear()
-			{ 
-				_list.Clear();
-			}
+            protected override void RemoveItem(int index)
+            {
+                ThrowOnLocked();
+                base.RemoveItem(index);
+            }
+   //         public string this [int index] {
+			//	get { return _list [index]; }
+			//	set {
+			//		ThrowOnLocked();
+			//		_list [index] = value; }
+			//}
 
-			public void Clear()
-			{
-				ThrowOnLocked();
-				InternalClear();
-			}
+			//public int Count {
+			//	get { return _list.Count; }
+			//}
 
-			public bool Contains(string item)
-			{
-				return _list.Contains(item);
-			}
+			//public bool IsReadOnly {
+			//	get { return ((IList<string>)_list).IsReadOnly; }
+			//}
 
-			public void CopyTo(string [] array, int arrayIndex)
-			{
-				_list.CopyTo(array, arrayIndex);
-			}
+			//public void InternalAdd(string item)
+			//{
+			//	_list.Add(item);
+			//}
 
-			public IEnumerator<string> GetEnumerator()
-			{
-				return _list.GetEnumerator();
-			}
+			//public void Add(string item)
+			//{
+			//	ThrowOnLocked();
+			//	InternalAdd(item);
+			//}
 
-			public int IndexOf(string item)
-			{
-				return _list.IndexOf(item);
-			}
+			//public void InternalClear()
+			//{ 
+			//	_list.Clear();
+			//}
 
-			public void InternalInsert(int index, string item)
-			{
-				_list.Insert(index, item);
-			}
+			//public void Clear()
+			//{
+			//	ThrowOnLocked();
+			//	InternalClear();
+			//}
 
-			public void Insert(int index, string item)
-			{
-				ThrowOnLocked();
-				InternalInsert(index, item);
-			}
+			//public bool Contains(string item)
+			//{
+			//	return _list.Contains(item);
+			//}
 
-			public bool InternalRemove(string item)
-			{
-				return _list.Remove(item);
-			}
+			//public void CopyTo(string [] array, int arrayIndex)
+			//{
+			//	_list.CopyTo(array, arrayIndex);
+			//}
 
-			public bool Remove(string item)
-			{
-				ThrowOnLocked();
-				return InternalRemove(item);
-			}
+			//public IEnumerator<string> GetEnumerator()
+			//{
+			//	return _list.GetEnumerator();
+			//}
 
-			public void InternalRemoveAt(int index)
-			{
-				_list.RemoveAt(index);
-			}
+			//public int IndexOf(string item)
+			//{
+			//	return _list.IndexOf(item);
+			//}
 
-			public void RemoveAt(int index)
-			{
-				ThrowOnLocked();
-				InternalRemoveAt(index);
-			}
+			//public void InternalInsert(int index, string item)
+			//{
+			//	_list.Insert(index, item);
+			//}
 
-			IEnumerator IEnumerable.GetEnumerator()
-			{
-				return ((IEnumerable)_list).GetEnumerator();
-			}
+			//public void Insert(int index, string item)
+			//{
+			//	ThrowOnLocked();
+			//	InternalInsert(index, item);
+			//}
+
+			//public bool InternalRemove(string item)
+			//{
+			//	return _list.Remove(item);
+			//}
+
+			//public bool Remove(string item)
+			//{
+			//	ThrowOnLocked();
+			//	return InternalRemove(item);
+			//}
+
+			//public void InternalRemoveAt(int index)
+			//{
+			//	_list.RemoveAt(index);
+			//}
+
+			//public void RemoveAt(int index)
+			//{
+			//	ThrowOnLocked();
+			//	InternalRemoveAt(index);
+			//}
+
+			//IEnumerator IEnumerable.GetEnumerator()
+			//{
+			//	return ((IEnumerable)_list).GetEnumerator();
+			//}
 		}
 	}
 }
